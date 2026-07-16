@@ -179,6 +179,24 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .quick-actions button:nth-child(3){border-color:var(--hadano-color)}
 .quick-actions button:nth-child(4){border-color:var(--hirai-color)}
 
+
+/* v0.8.0 月次明細 */
+.statement-button{width:100%;border:1px solid var(--line);border-radius:16px;background:#172033;color:white;padding:14px;font-size:15px;font-weight:800;margin-bottom:14px}
+.statement-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.back-button{border:1px solid var(--line);background:#172033;color:white;border-radius:12px;padding:9px 12px;font-weight:800}
+.statement-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.statement-box{background:#101827;border:1px solid var(--line);border-radius:14px;padding:12px}
+.statement-label{font-size:11px;color:#94A3B8}
+.statement-value{font-size:20px;font-weight:800;margin-top:4px}
+.statement-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.statement-row:first-child{border-top:0}
+.statement-source{font-weight:800}
+.statement-sub{font-size:12px;color:#94A3B8;margin-top:3px;line-height:1.55}
+.statement-total{background:linear-gradient(135deg,#0F766E,#115E59)}
+.statement-difference.positive{color:#86EFAC}
+.statement-difference.negative{color:#FCA5A5}
+@media(max-width:390px){.statement-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -199,6 +217,54 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   <div id="yearHint" class="year-hint">タップして表示</div>
   <div class="muted">給与・報酬・FLAPPERS利益の合計</div>
 </div>
+</section>
+
+
+<section id="statement" class="page">
+  <div class="statement-head">
+    <button id="closeStatement" class="back-button" type="button">‹ 戻る</button>
+    <strong>月次明細</strong>
+  </div>
+  <div class="card"><div class="field"><label>対象月</label><input id="statementMonth" type="month"></div></div>
+  <div class="card statement-total">
+    <div class="muted" style="color:#CCFBF1">収入・利益見込み</div>
+    <div id="statementExpected" class="big">¥0</div>
+    <div class="statement-grid" style="margin-top:12px">
+      <div class="statement-box"><div class="statement-label">実入金</div><div id="statementReceived" class="statement-value">¥0</div></div>
+      <div class="statement-box"><div class="statement-label">差額</div><div id="statementDifference" class="statement-value">¥0</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">事務所</div>
+    <div class="statement-row"><span>勤務回数</span><strong id="stOfficeCount">0回</strong></div>
+    <div class="statement-row"><span>通常時間</span><strong id="stOfficeBase">0.00h</strong></div>
+    <div class="statement-row"><span>残業時間</span><strong id="stOfficeOt">0.00h</strong></div>
+    <div class="statement-row"><span>給与見込み</span><strong id="stOfficePay">¥0</strong></div>
+    <div class="statement-row"><span>スリーウェイ</span><strong id="stThreeway">¥0</strong></div>
+    <div class="statement-row"><span>翌月の事務所分</span><strong id="stOfficeNext">¥0</strong></div>
+  </div>
+  <div class="card">
+    <div class="section-title">USA</div>
+    <div id="stUsaRows"></div>
+    <div class="statement-row"><span>報酬・交通費合計</span><strong id="stUsaGross">¥0</strong></div>
+    <div class="statement-row"><span>手取り見込み</span><strong id="stUsaNet">¥0</strong></div>
+  </div>
+  <div class="card">
+    <div class="section-title">秦野高校</div>
+    <div class="statement-row"><span>通常給与</span><strong id="stHadanoRegular">¥0</strong></div>
+    <div class="statement-row"><span>追加報酬</span><strong id="stHadanoExtra">¥0</strong></div>
+    <div class="statement-row"><span>手取り見込み</span><strong id="stHadanoNet">¥0</strong></div>
+  </div>
+  <div class="card">
+    <div class="section-title">FLAPPERS平井</div>
+    <div class="statement-row"><span>売上</span><strong id="stFlapSales">¥0</strong></div>
+    <div class="statement-row"><span>原価・支払</span><strong id="stFlapCost">¥0</strong></div>
+    <div class="statement-row"><span>利益</span><strong id="stFlapProfit">¥0</strong></div>
+  </div>
+  <div class="card">
+    <div class="section-title">入金実績</div>
+    <div id="stPaymentRows"></div>
+  </div>
 </section>
 
 <section id="calendar" class="page">
@@ -349,7 +415,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.7.0-alpha / カレンダー完成版</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.8.0-alpha / 月次明細</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
@@ -365,7 +431,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <script>
 const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
 let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];
-function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render()}
+function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render();if(statement.classList.contains('active'))renderStatement()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -491,6 +557,76 @@ paymentForm.onsubmit=e=>{
   e.target.reset();
   save();
 };
+
+
+function renderStatement(){
+  const month=statementMonth.value||new Date().toISOString().slice(0,7);
+  const officeItems=db.office.filter(x=>ym(x.date)===month);
+  const officeBase=officeItems.reduce((s,x)=>s+(+x.base||0),0);
+  const officeOt=officeItems.reduce((s,x)=>s+(+x.ot||0),0);
+  const officePay=officeItems.reduce((s,x)=>s+(+x.pay||0),0);
+  const threeway=Math.min(db.settings.threewayCap,officePay);
+  const officeNext=Math.max(0,officePay-db.settings.threewayCap);
+  const usaItems=db.usa.filter(x=>ym(x.date)===month);
+  const usaGross=usaItems.reduce((s,x)=>s+(+x.gross||0),0);
+  const usaNet=usaItems.reduce((s,x)=>s+(+x.net||0),0);
+  const hadanoItems=db.hadano.filter(x=>x.month===month);
+  const hadanoRegular=hadanoItems.reduce((s,x)=>s+(+x.reg||0),0);
+  const hadanoExtra=hadanoItems.reduce((s,x)=>s+(+x.extra||0),0);
+  const hadanoNet=hadanoItems.reduce((s,x)=>s+(+x.net||0),0);
+  const flapItems=db.flap.filter(x=>ym(x.date)===month);
+  const flapSales=flapItems.reduce((s,x)=>s+(+x.sale||0),0);
+  const flapCost=flapItems.reduce((s,x)=>s+(+x.cost||0),0);
+  const flapProfit=flapItems.reduce((s,x)=>s+(+x.profit||0),0);
+  const payments=db.payments.filter(x=>ym(x.date)===month);
+  const received=payments.reduce((s,x)=>s+(+x.amount||0),0);
+  const expected=officePay+usaGross+hadanoRegular+hadanoExtra+flapProfit;
+  const difference=received-expected;
+
+  statementExpected.textContent=yen(expected);
+  statementReceived.textContent=yen(received);
+  statementDifference.textContent=(difference>0?'+':'')+yen(difference);
+  statementDifference.classList.toggle('positive',difference>=0);
+  statementDifference.classList.toggle('negative',difference<0);
+
+  stOfficeCount.textContent=`${officeItems.length}回`;
+  stOfficeBase.textContent=`${officeBase.toFixed(2)}h`;
+  stOfficeOt.textContent=`${officeOt.toFixed(2)}h`;
+  stOfficePay.textContent=yen(officePay);
+  stThreeway.textContent=yen(threeway);
+  stOfficeNext.textContent=yen(officeNext);
+
+  const usaTypes={};
+  usaItems.forEach(x=>{usaTypes[x.type]=(usaTypes[x.type]||0)+1});
+  stUsaRows.innerHTML=Object.entries(usaTypes).map(([type,count])=>`<div class="statement-row"><span>${esc(type)}</span><strong>${count}件</strong></div>`).join('')||'<div class="muted">登録なし</div>';
+  stUsaGross.textContent=yen(usaGross);
+  stUsaNet.textContent=yen(usaNet);
+
+  stHadanoRegular.textContent=yen(hadanoRegular);
+  stHadanoExtra.textContent=yen(hadanoExtra);
+  stHadanoNet.textContent=yen(hadanoNet);
+
+  stFlapSales.textContent=yen(flapSales);
+  stFlapCost.textContent=yen(flapCost);
+  stFlapProfit.textContent=yen(flapProfit);
+
+  stPaymentRows.innerHTML=payments.map(x=>`<div class="statement-row"><div><div class="statement-source">${esc(x.source)}</div><div class="statement-sub">${esc(x.date)}／${esc(x.account)} ${esc(x.memo||'')}</div></div><strong>${yen(x.amount)}</strong></div>`).join('')||'<div class="muted">入金登録なし</div>';
+}
+openStatement.onclick=()=>{
+  statementMonth.value=new Date().toISOString().slice(0,7);
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  statement.classList.add('active');
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  renderStatement();
+  scrollTo(0,0);
+};
+closeStatement.onclick=()=>{
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  home.classList.add('active');
+  document.querySelector('nav button[data-page="home"]').classList.add('active');
+  scrollTo(0,0);
+};
+statementMonth.onchange=renderStatement;
 
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
