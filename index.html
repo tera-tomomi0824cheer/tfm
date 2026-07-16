@@ -214,6 +214,17 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .edit-button{border:1px solid #334155;background:#172033;color:#E2E8F0;border-radius:10px;padding:7px 10px}
 .item-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:6px}
 
+
+/* v1.1.0 スマート入力・年収予測 */
+.template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.template-button{border:1px solid var(--line);background:#172033;color:white;border-radius:12px;padding:11px 8px;font-size:12px;font-weight:800}
+.template-button:active{transform:scale(.98)}
+.forecast-box{background:#101827;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.forecast-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.forecast-row:first-child{border-top:0}
+.forecast-label{color:#94A3B8;font-size:12px}
+.forecast-value{font-weight:800}
+
 </style>
 </head>
 <body>
@@ -225,7 +236,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big">¥0</div></div></div>
     <div class="card mini"><div class="muted">未入金見込み</div><div id="homeOutstanding" class="big">¥0</div></div>
   </div>
-  <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
+  <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS収入</div><div id="homeFlap" class="big">¥0</div></div></div>
   <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">立替精算見込み</span><strong id="officeReimbursementAmount" class="tax-free">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
   <button id="openStatement" class="statement-button" type="button">📄 月次明細を見る</button>
   <div id="yearCard" class="card year-card" role="button" tabindex="0" aria-expanded="false">
@@ -233,7 +244,12 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   <div id="yearMasked" class="year-hidden">••••••</div>
   <div id="yearTotal" class="big hidden">¥0</div>
   <div id="yearHint" class="year-hint">タップして表示</div>
-  <div class="muted">給与・報酬・FLAPPERS利益の合計</div>
+  <div class="muted">給与・報酬・FLAPPERS収入の合計</div>
+  <div id="yearForecastBox" class="forecast-box hidden">
+    <div class="forecast-row"><span class="forecast-label">現在までの年収</span><span id="yearCurrent" class="forecast-value">¥0</span></div>
+    <div class="forecast-row"><span class="forecast-label">年末予測</span><span id="yearForecast" class="forecast-value">¥0</span></div>
+    <div class="forecast-row"><span class="forecast-label">立替精算（年収外）</span><span id="yearReimbursement" class="forecast-value tax-free">¥0</span></div>
+  </div>
 </div>
 </section>
 
@@ -337,6 +353,10 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 
   <div id="usaPane" class="formpane">
     <div class="card"><div class="section-title">USA業務</div>
+      <div class="template-grid">
+        <button id="tplShirayuri" class="template-button" type="button">白百合 17–19</button>
+        <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
+      </div>
       <form id="usaForm">
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
         <div class="field"><label>区分</label><select name="type"><option>個人コーチング</option><option>講習会</option><option>大会運営（その他）</option><option>大会運営（審判）</option></select></div>
@@ -439,7 +459,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.0.0 / 立替精算・履歴編集</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.1.0 / スマート入力・年収予測</div></div>
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -469,8 +489,8 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
 
 <script>
-const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
-let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];
+const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],venues:[{name:'白百合女子大学',type:'個人コーチング',start:'17:00',end:'19:00',from:'望地',to:'仙川'}],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
+let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];if(!db.venues)db.venues=DEF.venues;
 function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render();if(statement.classList.contains('active'))renderStatement()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
@@ -514,6 +534,28 @@ officeForm.onsubmit=e=>{
   officePreview();
 }
 
+
+function applyUsaTemplate(name){
+  const t=db.venues.find(x=>x.name===name);
+  if(!t)return;
+  usaForm.type.value=t.type;
+  usaForm.venue.value=t.name;
+  usaForm.start.value=t.start;
+  usaForm.end.value=t.end;
+  usaForm.from.value=t.from;
+  usaForm.to.value=t.to;
+  rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');
+  autofillFare();
+  usaPreview();
+}
+tplShirayuri.onclick=()=>applyUsaTemplate('白百合女子大学');
+tplClearUsa.onclick=()=>{
+  usaForm.reset();
+  usaForm.from.value='望地';
+  rankField.classList.add('hidden');
+  usaPreview();
+};
+
 function usaPreview(){let f=new FormData(usaForm),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=base+fare+al,tax=Math.floor((base+al)*db.settings.usaTax);usaCalc.textContent=`基本 ${yen(base)} ／ 支給 ${yen(g)} ／ 源泉概算 ${yen(tax)} ／ 手取り ${yen(g-tax)}`}
 function autofillFare(){
   const from=(usaForm.from.value||'').trim(),to=(usaForm.to.value||'').trim();
@@ -527,8 +569,32 @@ hadanoForm.oninput=()=>{let f=new FormData(hadanoForm);hadanoCalc.textContent=`�
 hadanoForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),reg=+f.get('regular')||0,extra=+f.get('extra')||0,tax=+f.get('tax')||0;db.hadano.unshift({id:uid(),month:f.get('month'),reg,extra,tax,net:reg+extra-tax});e.target.reset();e.target.regular.value=20000;e.target.extra.value=0;e.target.tax.value=0;save()};
 
 const PRODUCTS={'Tシャツ':[3000,2000],'スカッツ':[5000,3000],'リボン':[1500,500],'ポンポン':[2500,1518]};
-function flapValues(){let f=new FormData(flapForm),t=f.get('type'),sale=0,cost=0,detail='';if(t==='月謝'){sale=(+f.get('people')||0)*6000;cost=sale*.4;detail=`${f.get('people')}人`}else if(t==='入会金'){sale=(+f.get('people')||0)*5000;detail=`${f.get('people')}人`}else if(t==='年会費'){sale=(+f.get('people')||0)*3000;detail=`${f.get('people')}人`}else if(t==='物販'){let p=PRODUCTS[f.get('product')],q=+f.get('qty')||0;sale=p[0]*q;cost=p[1]*q+(f.get('product')==='スカッツ'?(+f.get('fee')||0):0);detail=`${f.get('product')}×${q}`}else if(t==='その他経費'){cost=+f.get('custom')||0}else sale=+f.get('custom')||0;return{f,t,sale,cost,profit:sale-cost,detail}}
-function flapPreview(){let x=flapValues();flapCalc.textContent=`売上 ${yen(x.sale)} ／ 原価・支払 ${yen(x.cost)} ／ 利益 ${yen(x.profit)}`}
+
+function flapValues(){
+  let f=new FormData(flapForm),t=f.get('type'),sale=0,cost=0,detail='';
+  if(t==='月謝'){
+    sale=(+f.get('people')||0)*6000;
+    cost=sale*.4;
+    detail=`${f.get('people')}人`;
+  }else if(t==='入会金'){
+    sale=(+f.get('people')||0)*5000;
+    detail=`${f.get('people')}人`;
+  }else if(t==='年会費'){
+    sale=(+f.get('people')||0)*3000;
+    detail=`${f.get('people')}人`;
+  }else if(t==='物販'){
+    let p=PRODUCTS[f.get('product')],q=+f.get('qty')||0;
+    sale=p[0]*q;
+    cost=0;
+    detail=`${f.get('product')}×${q}`;
+  }else if(t==='その他経費'){
+    cost=+f.get('custom')||0;
+  }else{
+    sale=+f.get('custom')||0;
+  }
+  return{f,t,sale,cost,profit:sale-cost,detail};
+}
+function flapPreview(){let x=flapValues();flapCalc.textContent=`収入 ${yen(x.sale)} ／ 支出 ${yen(x.cost)} ／ 手元増加 ${yen(x.profit)}`}
 flapForm.oninput=flapPreview;flapForm.type.onchange=()=>{let t=flapForm.type.value;peopleArea.classList.toggle('hidden',!['月謝','入会金','年会費'].includes(t));productArea.classList.toggle('hidden',t!=='物販');customArea.classList.toggle('hidden',!['イベント収入','その他経費'].includes(t));flapPreview()};flapForm.onsubmit=e=>{e.preventDefault();let x=flapValues();db.flap.unshift({id:uid(),date:x.f.get('date'),type:x.t,sale:x.sale,cost:x.cost,profit:x.profit,detail:x.detail});e.target.reset();save();flapPreview()}
 
 
@@ -572,6 +638,7 @@ function dateToISOFromText(text){
   return now.toISOString().slice(0,10);
 }
 
+
 function parseOfficeText(text){
   const date=dateToISOFromText(text);
   let tm=text.match(/(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)\s*(?:-|〜|~|から)\s*(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)/);
@@ -588,7 +655,12 @@ function parseOfficeText(text){
   const base=Math.min(8,worked);
   const ot=Math.max(0,worked-8);
   const pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);
-  return {date,start,end,breakH,worked,ot,base,pay};
+  let reimbursement=0;
+  let rm=text.match(/(?:立替|交通費|精算)\s*(\d[\d,]*)\s*円?/);
+  if(!rm)rm=text.match(/(\d[\d,]*)\s*円\s*(?:立替|交通費|精算)/);
+  if(rm)reimbursement=+rm[1].replaceAll(',','');
+  const reimbursementMemo=/直帰/.test(text)?'関与先から直帰':'';
+  return {date,start,end,breakH,worked,ot,base,pay,reimbursement,reimbursementMemo};
 }
 function showFinCandidate(c,text){
   finResult.innerHTML=`<div class="confirm-card">
@@ -599,7 +671,7 @@ function showFinCandidate(c,text){
       <div class="confirm-item"><div class="confirm-label">休憩</div><div class="confirm-value">${c.breakH.toFixed(2)}h</div></div>
       <div class="confirm-item"><div class="confirm-label">残業</div><div class="confirm-value">${c.ot.toFixed(2)}h</div></div>
       <div class="confirm-item"><div class="confirm-label">実働</div><div class="confirm-value">${(c.base+c.ot).toFixed(2)}h</div></div>
-      <div class="confirm-item"><div class="confirm-label">給与</div><div class="confirm-value">${yen(c.pay)}</div></div>
+      <div class="confirm-item"><div class="confirm-label">給与</div><div class="confirm-value">${yen(c.pay)}</div></div><div class="confirm-item"><div class="confirm-label">立替精算</div><div class="confirm-value">${yen(c.reimbursement||0)}</div></div>
     </div>
     <div class="inline-actions">
       <button class="primary" id="finConfirm" type="button">登録する</button>
@@ -607,17 +679,35 @@ function showFinCandidate(c,text){
     </div>
   </div>`;
   finConfirm.onclick=()=>{
-    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,breakH:c.breakH,worked:c.worked,base:c.base,ot:c.ot,pay:c.pay,reimbursement:0,reimbursementMemo:'',memo:'',source:'Fin'});
+    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,breakH:c.breakH,worked:c.worked,base:c.base,ot:c.ot,pay:c.pay,reimbursement:c.reimbursement||0,reimbursementMemo:c.reimbursementMemo||'',memo:text.includes('直帰')?'直帰':'',source:'Fin'});
     db.chat.push(text);finInput.value='';finResult.innerHTML='';save();
     alert('Finが事務所勤務を登録しました');
   };
   finCancel.onclick=()=>{finResult.innerHTML=''};
 }
+
 sendFin.onclick=()=>{
   const v=finInput.value.trim();if(!v)return;
+  if(/白百合/.test(v)){
+    const date=dateToISOFromText(v);
+    let tm=v.match(/(\d{1,2}(?::\d{2})?)\s*(?:-|〜|~|から)\s*(\d{1,2}(?::\d{2})?)/);
+    const t=db.venues.find(x=>x.name==='白百合女子大学');
+    const start=tm?parseTimeToken(tm[1]):t.start;
+    const end=tm?parseTimeToken(tm[2]):t.end;
+    const h=hours(start,end);
+    const base=h*db.settings.usaCoach;
+    const route=db.routes.find(x=>x.from===t.from&&x.to===t.to);
+    const fare=route?+route.fare||0:0;
+    const gross=Math.round(base+fare);
+    const tax=Math.floor(base*db.settings.usaTax);
+    finResult.innerHTML=`<div class="confirm-card"><div class="confirm-title">白百合女子大学のコーチングとして登録しますか？</div><div class="confirm-grid"><div class="confirm-item"><div class="confirm-label">日付</div><div class="confirm-value">${date}</div></div><div class="confirm-item"><div class="confirm-label">時間</div><div class="confirm-value">${start}–${end}</div></div><div class="confirm-item"><div class="confirm-label">交通費</div><div class="confirm-value">${yen(fare)}</div></div><div class="confirm-item"><div class="confirm-label">手取り見込み</div><div class="confirm-value">${yen(gross-tax)}</div></div></div><div class="inline-actions"><button class="primary" id="finConfirmUsa" type="button">登録する</button><button class="secondary" id="finCancelUsa" type="button">取り消す</button></div></div>`;
+    finConfirmUsa.onclick=()=>{db.usa.unshift({id:uid(),date,type:'個人コーチング',venue:t.name,from:t.from,to:t.to,fare,allowance:0,gross,net:gross-tax});db.chat.push(v);finInput.value='';finResult.innerHTML='';save();alert('白百合のコーチングを登録しました')};
+    finCancelUsa.onclick=()=>{finResult.innerHTML=''};
+    return;
+  }
   const c=parseOfficeText(v);
   if(c){showFinCandidate(c,v)}
-  else{finResult.innerHTML='<div class="note" style="margin-top:12px">時間を読み取れませんでした。「今日は事務所9-18、15分残業」のように入力してください。</div>'}
+  else{finResult.innerHTML='<div class="note" style="margin-top:12px">内容を読み取れませんでした。「今日は事務所9-18、交通費980円立替」「7/20 白百合17-19」のように入力してください。</div>'}
 };
 routeForm.onsubmit=e=>{
   e.preventDefault();const f=new FormData(e.target),from=f.get('from').trim(),to=f.get('to').trim(),fare=+f.get('fare')||0;
@@ -727,7 +817,7 @@ statementMonth.onchange=renderStatement;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.0.0',
+    version:'1.1.0',
     exportedAt:new Date().toISOString(),
     data:db
   };
@@ -861,11 +951,41 @@ officeHourly.value=db.settings.officeHourly;otRate.value=db.settings.otRate;thre
 saveSettings.onclick=()=>{db.settings.officeHourly=+officeHourly.value||1300;db.settings.otRate=+otRate.value||1.25;db.settings.threewayCap=+threewayCap.value||90000;db.settings.usaSeminar=+usaSeminar.value||1800;db.settings.usaCoach=+usaCoach.value||4500;save();alert('保存しました')}
 
 let yearVisible=false;
+
+function calculateYearForecast(){
+  const now=new Date();
+  const year=now.getFullYear();
+  const yearPrefix=String(year);
+  const currentMonth=now.getMonth()+1;
+  const elapsed=Math.max(1,currentMonth);
+
+  const officeY=db.office.filter(x=>x.date.startsWith(yearPrefix));
+  const usaY=db.usa.filter(x=>x.date.startsWith(yearPrefix));
+  const hadanoY=db.hadano.filter(x=>x.month.startsWith(yearPrefix));
+  const flapY=db.flap.filter(x=>x.date.startsWith(yearPrefix));
+
+  const officeTotal=officeY.reduce((s,x)=>s+(+x.pay||0),0);
+  const usaTotal=usaY.reduce((s,x)=>s+(+x.gross||0),0);
+  const hadanoTotal=hadanoY.reduce((s,x)=>s+(+x.reg||0)+(+x.extra||0),0);
+  const flapTotal=flapY.reduce((s,x)=>s+(+x.profit||0),0);
+  const reimbursement=officeY.reduce((s,x)=>s+(+x.reimbursement||0),0);
+  const current=officeTotal+usaTotal+hadanoTotal+flapTotal;
+
+  const averageVariable=(officeTotal+usaTotal+flapTotal)/elapsed;
+  const remaining=12-elapsed;
+  const fixedHadanoFuture=remaining*20000;
+  const forecast=Math.round(current+averageVariable*remaining+fixedHadanoFuture);
+
+  yearCurrent.textContent=yen(current);
+  yearForecast.textContent=yen(forecast);
+  yearReimbursement.textContent=yen(reimbursement);
+}
+
 function toggleYearTotal(){
   yearVisible=!yearVisible;
   yearMasked.classList.toggle('hidden',yearVisible);
   yearTotal.classList.toggle('hidden',!yearVisible);
-  yearHint.textContent=yearVisible?'タップして隠す':'タップして表示';
+  yearHint.textContent=yearVisible?'タップして隠す':'タップして表示';yearForecastBox.classList.toggle('hidden',!yearVisible);if(yearVisible)calculateYearForecast();
   yearCard.setAttribute('aria-expanded',yearVisible?'true':'false');
 }
 yearCard.onclick=toggleYearTotal;
