@@ -137,6 +137,18 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   main{padding-top:12px!important}
 }
 
+
+/* v0.6.0 入金管理 */
+.tabbar.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.tabbar.five button{font-size:11px;padding-left:1px;padding-right:1px}
+.payment-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.payment-summary .card{margin-bottom:0}
+.account-pill{display:inline-block;padding:3px 7px;border-radius:999px;background:#243246;color:#CBD5E1;font-size:10px}
+.positive{color:#86EFAC}.pending{color:#FDE68A}
+@media(max-width:390px){
+  .tabbar.five button{font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -146,6 +158,10 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   
   <div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額・利益</div></div>
   <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big">¥0</div></div></div>
+  <div class="payment-summary">
+    <div class="card mini"><div class="muted">今月の実入金</div><div id="homeReceived" class="big">¥0</div></div>
+    <div class="card mini"><div class="muted">未入金見込み</div><div id="homeOutstanding" class="big">¥0</div></div>
+  </div>
   <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
   <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
   <div id="yearCard" class="card year-card" role="button" tabindex="0" aria-expanded="false">
@@ -160,8 +176,8 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <section id="calendar" class="page"><div class="card"><div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div><div class="cal-grid" id="calendarGrid"></div><div class="muted" style="margin-top:12px">●ティール 事務所　●青 USA　●ピンク 平井　●橙 秦野</div></div></section>
 
 <section id="input" class="page">
-  <div class="tabbar">
-    <button data-form="officePane" class="active">事務所</button><button data-form="usaPane">USA</button><button data-form="hadanoPane">秦野</button><button data-form="flapPane">平井</button>
+  <div class="tabbar five">
+    <button data-form="officePane" class="active">事務所</button><button data-form="usaPane">USA</button><button data-form="hadanoPane">秦野</button><button data-form="flapPane">平井</button><button data-form="paymentPane">入金</button>
   </div>
 
   <div id="officePane" class="formpane active">
@@ -231,6 +247,41 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
       <div class="history-content"><div id="flapList"></div></div>
     </details>
   </div>
+
+  <div id="paymentPane" class="formpane">
+    <div class="card"><div class="section-title">入金実績</div>
+      <form id="paymentForm">
+        <div class="field"><label>入金日</label><input name="date" type="date" required></div>
+        <div class="field"><label>収入元</label>
+          <select name="source">
+            <option>スリーウェイ</option>
+            <option>坂口税理士事務所</option>
+            <option>USA</option>
+            <option>秦野高校</option>
+            <option>FLAPPERS</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="field"><label>入金口座</label>
+          <select name="account">
+            <option>三菱UFJ</option>
+            <option>三井住友</option>
+            <option>ゆうちょ</option>
+            <option>現金</option>
+          </select>
+        </div>
+        <div class="field"><label>実入金額</label><input name="amount" type="number" min="0" required></div>
+        <div class="field"><label>メモ</label><textarea name="memo" placeholder="給与明細との差額など"></textarea></div>
+        <div id="paymentCalc" class="calc">登録するとホームの実入金へ反映されます</div>
+        <button class="primary" type="submit">入金を登録する</button>
+      </form>
+    </div>
+    <details class="card history-box">
+      <summary>入金履歴を見る</summary>
+      <div class="history-content"><div id="paymentList"></div></div>
+    </details>
+  </div>
+
 </section>
 
 <section id="fin" class="page">
@@ -249,7 +300,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.3-alpha / コンパクト2列表示</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.6.0-alpha / 入金管理</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
@@ -263,8 +314,8 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
 
 <script>
-const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],chat:[],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
-let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;
+const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
+let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];
 function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
@@ -374,16 +425,37 @@ function renderRoutes(){
   routeList.innerHTML=db.routes.map((r,i)=>`<div class="list-item"><div class="row"><div>${esc(r.from)} → ${esc(r.to)}</div><div><span class="amount">${yen(r.fare)}</span> <button class="danger" onclick="deleteRoute(${i})">削除</button></div></div></div>`).join('')||'<div class="muted">登録なし</div>';
 }
 
+
+paymentForm.onsubmit=e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  const amount=+f.get('amount')||0;
+  if(!f.get('date')||amount<=0){alert('入金日と金額を入力してください');return}
+  db.payments.unshift({
+    id:uid(),
+    date:f.get('date'),
+    source:f.get('source'),
+    account:f.get('account'),
+    amount,
+    memo:f.get('memo')
+  });
+  e.target.reset();
+  save();
+};
+
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
  const ov=db.office.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.pay,0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
- workedTotal.textContent=yen(ov+uv+hv+fv);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);
+ const expected=ov+uv+hv+fv;
+ const received=db.payments.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.amount,0);
+ workedTotal.textContent=yen(expected);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);homeReceived.textContent=yen(received);homeOutstanding.textContent=yen(Math.max(0,expected-received));
  let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
  let yt=db.office.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.pay,0)+db.usa.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.gross,0)+db.hadano.filter(x=>x.month.startsWith(y)).reduce((s,x)=>s+x.reg+x.extra,0)+db.flap.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.profit,0);yearTotal.textContent=yen(yt);
  list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${x.base.toFixed(2)}h＋残業${x.ot.toFixed(2)}h</div></div><div><div class="amount">${yen(x.pay)}</div><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div>`);
  list(usaList,db.usa,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')} ${x.from&&x.to?'／ '+esc(x.from)+'→'+esc(x.to):''}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
  list(hadanoList,db.hadano,x=>`<div class="list-item"><div class="row"><div>${esc(x.month)}<div class="muted">通常${yen(x.reg)} 追加${yen(x.extra)}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('hadano','${x.id}')">削除</button></div></div></div>`);
  list(flapList,db.flap,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.detail||'')}</div></div><div><div class="amount">${yen(x.profit)}</div><button class="danger" onclick="del('flap','${x.id}')">削除</button></div></div></div>`);
+ list(paymentList,db.payments,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.source)}<div class="muted"><span class="account-pill">${esc(x.account)}</span> ${esc(x.memo||'')}</div></div><div><div class="amount">${yen(x.amount)}</div><button class="danger" onclick="del('payments','${x.id}')">削除</button></div></div></div>`);
  drawCalendar();renderRoutes();chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">登録済みです。</div>`).join('');
 }
 let cal=new Date();function drawCalendar(){let Y=cal.getFullYear(),M=cal.getMonth(),prefix=`${Y}-${String(M+1).padStart(2,'0')}`;monthLabel.textContent=`${Y}年 ${M+1}月`;let first=new Date(Y,M,1).getDay(),days=new Date(Y,M+1,0).getDate(),names=['日','月','火','水','木','金','土'];calendarGrid.innerHTML=names.map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';let t=new Date();for(let d=1;d<=days;d++){let date=`${prefix}-${String(d).padStart(2,'0')}`,cls='';if(db.office.some(x=>x.date===date))cls='office';else if(db.usa.some(x=>x.date===date))cls='usa';else if(db.flap.some(x=>x.date===date))cls='flap';else if(db.hadano.some(x=>x.month===prefix))cls='hadano';let today=Y===t.getFullYear()&&M===t.getMonth()&&d===t.getDate()?'today':'';calendarGrid.innerHTML+=`<div class="day ${cls} ${today}">${d}</div>`}}
