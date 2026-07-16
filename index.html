@@ -225,6 +225,12 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .forecast-label{color:#94A3B8;font-size:12px}
 .forecast-value{font-weight:800}
 
+
+/* v1.2.0 前回複製 */
+.duplicate-button{width:100%;border:1px solid var(--line);border-radius:13px;background:#172033;color:#E2E8F0;padding:11px;font-size:13px;font-weight:800;margin-bottom:10px}
+.duplicate-button:active{transform:scale(.99)}
+.duplicate-note{font-size:11px;color:#94A3B8;margin:-3px 0 10px}
+
 </style>
 </head>
 <body>
@@ -330,7 +336,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   </div>
 
   <div id="officePane" class="formpane active">
-    <div class="card"><div class="section-title">事務所勤務</div>
+    <div class="card"><div class="section-title">事務所勤務</div><button id="duplicateOffice" class="duplicate-button" type="button">前回の事務所勤務を複製</button><div class="duplicate-note">日付だけ今日に変更して入力します</div>
       <form id="officeForm">
         <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
         <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
@@ -352,7 +358,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   </div>
 
   <div id="usaPane" class="formpane">
-    <div class="card"><div class="section-title">USA業務</div>
+    <div class="card"><div class="section-title">USA業務</div><button id="duplicateUsa" class="duplicate-button" type="button">前回のUSA業務を複製</button><div class="duplicate-note">日付だけ今日に変更して入力します</div>
       <div class="template-grid">
         <button id="tplShirayuri" class="template-button" type="button">白百合 17–19</button>
         <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
@@ -375,7 +381,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   </div>
 
   <div id="hadanoPane" class="formpane">
-    <div class="card"><div class="section-title">秦野高校</div>
+    <div class="card"><div class="section-title">秦野高校</div><button id="duplicateHadano" class="duplicate-button" type="button">前回の秦野入力を複製</button><div class="duplicate-note">対象月だけ今月に変更して入力します</div>
       <form id="hadanoForm">
         <div class="field"><label>対象月</label><input name="month" type="month" required></div>
         <div class="field"><label>通常給与</label><input name="regular" type="number" value="20000"></div>
@@ -391,7 +397,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   </div>
 
   <div id="flapPane" class="formpane">
-    <div class="card"><div class="section-title">FLAPPERS平井</div>
+    <div class="card"><div class="section-title">FLAPPERS平井</div><button id="duplicateFlap" class="duplicate-button" type="button">前回の平井入力を複製</button><div class="duplicate-note">日付だけ今日に変更して入力します</div>
       <form id="flapForm">
         <div class="field"><label>日付</label><input name="date" type="date" required></div>
         <div class="field"><label>種類</label><select name="type"><option>月謝</option><option>物販</option><option>入会金</option><option>年会費</option><option>イベント収入</option><option>その他経費</option></select></div>
@@ -459,7 +465,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.1.0 / スマート入力・年収予測</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.0 / 前回入力の複製</div></div>
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -563,7 +569,7 @@ function autofillFare(){
   if(r&&r.fare)usaForm.fare.value=r.fare;
   usaPreview();
 }
-usaForm.oninput=usaPreview;usaForm.from.onchange=autofillFare;usaForm.to.onchange=autofillFare;usaForm.type.onchange=()=>{rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');usaPreview()};usaForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=Math.round(base+fare+al),tax=Math.floor((base+al)*db.settings.usaTax);db.usa.unshift({id:uid(),date:f.get('date'),type:t,venue:f.get('venue'),from:f.get('from'),to:f.get('to'),fare,allowance:al,gross:g,net:g-tax});if(f.get('from')&&f.get('to')&&fare&&!db.routes.some(x=>x.from===f.get('from')&&x.to===f.get('to')))db.routes.push({from:f.get('from'),to:f.get('to'),fare});e.target.reset();e.target.from.value='望地';save();usaPreview()}
+usaForm.oninput=usaPreview;usaForm.from.onchange=autofillFare;usaForm.to.onchange=autofillFare;usaForm.type.onchange=()=>{rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');usaPreview()};usaForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=Math.round(base+fare+al),tax=Math.floor((base+al)*db.settings.usaTax);db.usa.unshift({id:uid(),date:f.get('date'),type:t,rank:f.get('rank'),start:f.get('start'),end:f.get('end'),venue:f.get('venue'),from:f.get('from'),to:f.get('to'),fare,allowance:al,gross:g,net:g-tax});if(f.get('from')&&f.get('to')&&fare&&!db.routes.some(x=>x.from===f.get('from')&&x.to===f.get('to')))db.routes.push({from:f.get('from'),to:f.get('to'),fare});e.target.reset();e.target.from.value='望地';save();usaPreview()}
 
 hadanoForm.oninput=()=>{let f=new FormData(hadanoForm);hadanoCalc.textContent=`手取り見込み ${yen((+f.get('regular')||0)+(+f.get('extra')||0)-(+f.get('tax')||0))}`};
 hadanoForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),reg=+f.get('regular')||0,extra=+f.get('extra')||0,tax=+f.get('tax')||0;db.hadano.unshift({id:uid(),month:f.get('month'),reg,extra,tax,net:reg+extra-tax});e.target.reset();e.target.regular.value=20000;e.target.extra.value=0;e.target.tax.value=0;save()};
@@ -597,6 +603,86 @@ function flapValues(){
 function flapPreview(){let x=flapValues();flapCalc.textContent=`収入 ${yen(x.sale)} ／ 支出 ${yen(x.cost)} ／ 手元増加 ${yen(x.profit)}`}
 flapForm.oninput=flapPreview;flapForm.type.onchange=()=>{let t=flapForm.type.value;peopleArea.classList.toggle('hidden',!['月謝','入会金','年会費'].includes(t));productArea.classList.toggle('hidden',t!=='物販');customArea.classList.toggle('hidden',!['イベント収入','その他経費'].includes(t));flapPreview()};flapForm.onsubmit=e=>{e.preventDefault();let x=flapValues();db.flap.unshift({id:uid(),date:x.f.get('date'),type:x.t,sale:x.sale,cost:x.cost,profit:x.profit,detail:x.detail});e.target.reset();save();flapPreview()}
 
+
+
+function todayISO(){
+  return new Date().toISOString().slice(0,10);
+}
+function currentMonthISO(){
+  return new Date().toISOString().slice(0,7);
+}
+function latestByDate(items,key){
+  if(!items.length)return null;
+  return [...items].sort((a,b)=>String(b[key]||'').localeCompare(String(a[key]||'')))[0];
+}
+
+duplicateOffice.onclick=()=>{
+  const x=latestByDate(db.office,'date');
+  if(!x){alert('複製できる事務所履歴がありません');return}
+  officeForm.date.value=todayISO();
+  officeForm.start.value=x.start||'09:00';
+  officeForm.end.value=x.end||'18:00';
+  officeForm.breakH.value=Number.isFinite(+x.breakH)?+x.breakH:1;
+  officeForm.reimbursement.value=0;
+  officeForm.reimbursementMemo.value='';
+  officeForm.memo.value=x.memo||'';
+  officePreview();
+  officeForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+duplicateUsa.onclick=()=>{
+  const x=latestByDate(db.usa,'date');
+  if(!x){alert('複製できるUSA履歴がありません');return}
+  usaForm.date.value=todayISO();
+  usaForm.type.value=x.type||'個人コーチング';
+  usaForm.venue.value=x.venue||'';
+  usaForm.from.value=x.from||'望地';
+  usaForm.to.value=x.to||'';
+  usaForm.fare.value=+x.fare||0;
+  usaForm.allowance.value=+x.allowance||0;
+  if(x.start)usaForm.start.value=x.start;
+  if(x.end)usaForm.end.value=x.end;
+  if(x.rank)usaForm.rank.value=x.rank;
+  rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');
+  usaPreview();
+  usaForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+duplicateHadano.onclick=()=>{
+  const x=latestByDate(db.hadano,'month');
+  if(!x){alert('複製できる秦野履歴がありません');return}
+  hadanoForm.month.value=currentMonthISO();
+  hadanoForm.regular.value=+x.reg||20000;
+  hadanoForm.extra.value=0;
+  hadanoForm.tax.value=0;
+  hadanoForm.dispatchEvent(new Event('input'));
+  hadanoForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+duplicateFlap.onclick=()=>{
+  const x=latestByDate(db.flap,'date');
+  if(!x){alert('複製できる平井履歴がありません');return}
+  flapForm.date.value=todayISO();
+  flapForm.type.value=x.type||'月謝';
+  flapForm.type.dispatchEvent(new Event('change'));
+
+  if(x.type==='月謝'||x.type==='入会金'||x.type==='年会費'){
+    const match=String(x.detail||'').match(/(\d+)人/);
+    flapForm.people.value=match?+match[1]:1;
+  }else if(x.type==='物販'){
+    const match=String(x.detail||'').match(/(.+)×(\d+)/);
+    if(match){
+      flapForm.product.value=match[1];
+      flapForm.qty.value=+match[2];
+    }
+  }else if(x.type==='イベント収入'){
+    flapForm.custom.value=+x.sale||0;
+  }else if(x.type==='その他経費'){
+    flapForm.custom.value=+x.cost||0;
+  }
+  flapPreview();
+  flapForm.scrollIntoView({behavior:'smooth',block:'start'});
+};
 
 function editOffice(id){
   const x=db.office.find(v=>v.id===id);
@@ -701,7 +787,7 @@ sendFin.onclick=()=>{
     const gross=Math.round(base+fare);
     const tax=Math.floor(base*db.settings.usaTax);
     finResult.innerHTML=`<div class="confirm-card"><div class="confirm-title">白百合女子大学のコーチングとして登録しますか？</div><div class="confirm-grid"><div class="confirm-item"><div class="confirm-label">日付</div><div class="confirm-value">${date}</div></div><div class="confirm-item"><div class="confirm-label">時間</div><div class="confirm-value">${start}–${end}</div></div><div class="confirm-item"><div class="confirm-label">交通費</div><div class="confirm-value">${yen(fare)}</div></div><div class="confirm-item"><div class="confirm-label">手取り見込み</div><div class="confirm-value">${yen(gross-tax)}</div></div></div><div class="inline-actions"><button class="primary" id="finConfirmUsa" type="button">登録する</button><button class="secondary" id="finCancelUsa" type="button">取り消す</button></div></div>`;
-    finConfirmUsa.onclick=()=>{db.usa.unshift({id:uid(),date,type:'個人コーチング',venue:t.name,from:t.from,to:t.to,fare,allowance:0,gross,net:gross-tax});db.chat.push(v);finInput.value='';finResult.innerHTML='';save();alert('白百合のコーチングを登録しました')};
+    finConfirmUsa.onclick=()=>{db.usa.unshift({id:uid(),date,type:'個人コーチング',rank:'',start,end,venue:t.name,from:t.from,to:t.to,fare,allowance:0,gross,net:gross-tax});db.chat.push(v);finInput.value='';finResult.innerHTML='';save();alert('白百合のコーチングを登録しました')};
     finCancelUsa.onclick=()=>{finResult.innerHTML=''};
     return;
   }
@@ -817,7 +903,7 @@ statementMonth.onchange=renderStatement;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.1.0',
+    version:'1.2.0',
     exportedAt:new Date().toISOString(),
     data:db
   };
