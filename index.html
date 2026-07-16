@@ -149,6 +149,36 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   .tabbar.five button{font-size:10px}
 }
 
+
+/* v0.7.0 カレンダー完成版 */
+:root{
+  --office-color:#22C55E;
+  --usa-color:#EF4444;
+  --hadano-color:#3B82F6;
+  --hirai-color:#FACC15;
+}
+.day{position:relative;cursor:pointer;transition:transform .12s ease,border-color .12s ease}
+.day:active{transform:scale(.96)}
+.day.selected{border-color:#F8FAFC;box-shadow:0 0 0 1px #F8FAFC inset}
+.day-dots{display:flex;justify-content:center;gap:3px;margin-top:4px;min-height:6px}
+.day-dot{width:6px;height:6px;border-radius:50%}
+.dot-office{background:var(--office-color)}
+.dot-usa{background:var(--usa-color)}
+.dot-hadano{background:var(--hadano-color)}
+.dot-hirai{background:var(--hirai-color)}
+.calendar-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#CBD5E1}
+.legend-dot{width:9px;height:9px;border-radius:50%}
+.day-detail-empty{text-align:center;color:#94A3B8;padding:12px 0}
+.day-detail-item{border-top:1px solid var(--line);padding:11px 0}
+.day-detail-item:first-child{border-top:0}
+.quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
+.quick-actions button{border:1px solid var(--line);border-radius:11px;background:#172033;color:white;padding:10px 2px;font-size:11px}
+.quick-actions button:nth-child(1){border-color:var(--office-color)}
+.quick-actions button:nth-child(2){border-color:var(--usa-color)}
+.quick-actions button:nth-child(3){border-color:var(--hadano-color)}
+.quick-actions button:nth-child(4){border-color:var(--hirai-color)}
+
 </style>
 </head>
 <body>
@@ -158,8 +188,6 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   
   <div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額・利益</div></div>
   <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big">¥0</div></div></div>
-  <div class="payment-summary">
-    <div class="card mini"><div class="muted">今月の実入金</div><div id="homeReceived" class="big">¥0</div></div>
     <div class="card mini"><div class="muted">未入金見込み</div><div id="homeOutstanding" class="big">¥0</div></div>
   </div>
   <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
@@ -173,7 +201,28 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 </div>
 </section>
 
-<section id="calendar" class="page"><div class="card"><div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div><div class="cal-grid" id="calendarGrid"></div><div class="muted" style="margin-top:12px">●ティール 事務所　●青 USA　●ピンク 平井　●橙 秦野</div></div></section>
+<section id="calendar" class="page">
+  <div class="card">
+    <div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div>
+    <div class="cal-grid" id="calendarGrid"></div>
+    <div class="calendar-legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--office-color)"></span>事務所</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--usa-color)"></span>USA</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--hadano-color)"></span>秦野</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--hirai-color)"></span>平井</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title" id="selectedDateTitle">日付を選択してください</div>
+    <div id="selectedDateDetail" class="day-detail-empty">カレンダーの日付をタップすると、その日の仕事が表示されます。</div>
+    <div id="calendarQuickActions" class="quick-actions hidden">
+      <button type="button" data-quick-form="officePane">事務所</button>
+      <button type="button" data-quick-form="usaPane">USA</button>
+      <button type="button" data-quick-form="hadanoPane">秦野</button>
+      <button type="button" data-quick-form="flapPane">平井</button>
+    </div>
+  </div>
+</section>
 
 <section id="input" class="page">
   <div class="tabbar five">
@@ -300,7 +349,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.6.0-alpha / 入金管理</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.7.0-alpha / カレンダー完成版</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
@@ -448,7 +497,7 @@ function render(){
  const ov=db.office.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.pay,0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
  const expected=ov+uv+hv+fv;
  const received=db.payments.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.amount,0);
- workedTotal.textContent=yen(expected);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);homeReceived.textContent=yen(received);homeOutstanding.textContent=yen(Math.max(0,expected-received));
+ workedTotal.textContent=yen(expected);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);
  let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
  let yt=db.office.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.pay,0)+db.usa.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.gross,0)+db.hadano.filter(x=>x.month.startsWith(y)).reduce((s,x)=>s+x.reg+x.extra,0)+db.flap.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.profit,0);yearTotal.textContent=yen(yt);
  list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${x.base.toFixed(2)}h＋残業${x.ot.toFixed(2)}h</div></div><div><div class="amount">${yen(x.pay)}</div><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div>`);
@@ -458,8 +507,70 @@ function render(){
  list(paymentList,db.payments,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.source)}<div class="muted"><span class="account-pill">${esc(x.account)}</span> ${esc(x.memo||'')}</div></div><div><div class="amount">${yen(x.amount)}</div><button class="danger" onclick="del('payments','${x.id}')">削除</button></div></div></div>`);
  drawCalendar();renderRoutes();chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">登録済みです。</div>`).join('');
 }
-let cal=new Date();function drawCalendar(){let Y=cal.getFullYear(),M=cal.getMonth(),prefix=`${Y}-${String(M+1).padStart(2,'0')}`;monthLabel.textContent=`${Y}年 ${M+1}月`;let first=new Date(Y,M,1).getDay(),days=new Date(Y,M+1,0).getDate(),names=['日','月','火','水','木','金','土'];calendarGrid.innerHTML=names.map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';let t=new Date();for(let d=1;d<=days;d++){let date=`${prefix}-${String(d).padStart(2,'0')}`,cls='';if(db.office.some(x=>x.date===date))cls='office';else if(db.usa.some(x=>x.date===date))cls='usa';else if(db.flap.some(x=>x.date===date))cls='flap';else if(db.hadano.some(x=>x.month===prefix))cls='hadano';let today=Y===t.getFullYear()&&M===t.getMonth()&&d===t.getDate()?'today':'';calendarGrid.innerHTML+=`<div class="day ${cls} ${today}">${d}</div>`}}
-prevMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);drawCalendar()};nextMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()+1,1);drawCalendar()};
+
+let cal=new Date();
+let selectedCalendarDate='';
+
+function dateEvents(date){
+  const month=date.slice(0,7);
+  return {
+    office:db.office.filter(x=>x.date===date),
+    usa:db.usa.filter(x=>x.date===date),
+    hadano:db.hadano.filter(x=>x.month===month),
+    hirai:db.flap.filter(x=>x.date===date)
+  };
+}
+
+function selectCalendarDate(date){
+  selectedCalendarDate=date;
+  drawCalendar();
+  const e=dateEvents(date);
+  const items=[];
+  e.office.forEach(x=>items.push(`<div class="day-detail-item"><div class="row"><div><strong style="color:var(--office-color)">事務所</strong><div class="muted">${esc(x.start||'')}–${esc(x.end||'')}／残業 ${(+x.ot||0).toFixed(2)}h</div></div><div class="amount">${yen(x.pay)}</div></div></div>`));
+  e.usa.forEach(x=>items.push(`<div class="day-detail-item"><div class="row"><div><strong style="color:var(--usa-color)">USA</strong><div class="muted">${esc(x.type)} ${esc(x.venue||'')}</div></div><div class="amount">${yen(x.net||x.gross)}</div></div></div>`));
+  e.hadano.forEach(x=>items.push(`<div class="day-detail-item"><div class="row"><div><strong style="color:var(--hadano-color)">秦野高校</strong><div class="muted">月額・追加報酬</div></div><div class="amount">${yen(x.net||x.reg+x.extra)}</div></div></div>`));
+  e.hirai.forEach(x=>items.push(`<div class="day-detail-item"><div class="row"><div><strong style="color:var(--hirai-color)">平井</strong><div class="muted">${esc(x.type)} ${esc(x.detail||'')}</div></div><div class="amount">${yen(x.profit)}</div></div></div>`));
+  selectedDateTitle.textContent=`${date.replaceAll('-','/')} の予定`;
+  selectedDateDetail.className=items.length?'':'day-detail-empty';
+  selectedDateDetail.innerHTML=items.join('')||'この日はまだ登録がありません。';
+  calendarQuickActions.classList.remove('hidden');
+}
+
+function drawCalendar(){
+  const Y=cal.getFullYear(),M=cal.getMonth(),prefix=`${Y}-${String(M+1).padStart(2,'0')}`;
+  monthLabel.textContent=`${Y}年 ${M+1}月`;
+  const first=new Date(Y,M,1).getDay(),days=new Date(Y,M+1,0).getDate(),names=['日','月','火','水','木','金','土'];
+  calendarGrid.innerHTML=names.map(x=>`<div class="dow">${x}</div>`).join('');
+  for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';
+  const today=new Date();
+  for(let d=1;d<=days;d++){
+    const date=`${prefix}-${String(d).padStart(2,'0')}`;
+    const e=dateEvents(date),dots=[];
+    if(e.office.length)dots.push('<span class="day-dot dot-office"></span>');
+    if(e.usa.length)dots.push('<span class="day-dot dot-usa"></span>');
+    if(e.hadano.length)dots.push('<span class="day-dot dot-hadano"></span>');
+    if(e.hirai.length)dots.push('<span class="day-dot dot-hirai"></span>');
+    const isToday=Y===today.getFullYear()&&M===today.getMonth()&&d===today.getDate();
+    const selected=date===selectedCalendarDate;
+    calendarGrid.innerHTML+=`<div class="day ${isToday?'today':''} ${selected?'selected':''}" data-date="${date}">${d}<div class="day-dots">${dots.join('')}</div></div>`;
+  }
+  calendarGrid.querySelectorAll('.day[data-date]').forEach(el=>el.onclick=()=>selectCalendarDate(el.dataset.date));
+}
+prevMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);selectedCalendarDate='';drawCalendar()};
+nextMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()+1,1);selectedCalendarDate='';drawCalendar()};
+
+calendarQuickActions.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+  if(!selectedCalendarDate)return;
+  document.querySelector('nav button[data-page="input"]').click();
+  document.querySelector(`.tabbar button[data-form="${btn.dataset.quickForm}"]`).click();
+  const pane=document.getElementById(btn.dataset.quickForm);
+  const dateInput=pane.querySelector('input[type="date"]');
+  const monthInput=pane.querySelector('input[type="month"]');
+  if(dateInput)dateInput.value=selectedCalendarDate;
+  if(monthInput)monthInput.value=selectedCalendarDate.slice(0,7);
+  pane.scrollIntoView({behavior:'smooth',block:'start'});
+});
+
 
 officeHourly.value=db.settings.officeHourly;otRate.value=db.settings.otRate;threewayCap.value=db.settings.threewayCap;usaSeminar.value=db.settings.usaSeminar;usaCoach.value=db.settings.usaCoach;
 saveSettings.onclick=()=>{db.settings.officeHourly=+officeHourly.value||1300;db.settings.otRate=+otRate.value||1.25;db.settings.threewayCap=+threewayCap.value||90000;db.settings.usaSeminar=+usaSeminar.value||1800;db.settings.usaCoach=+usaCoach.value||4500;save();alert('保存しました')}
