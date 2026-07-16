@@ -1,7 +1,7 @@
 {
   "name": "TFM - Tomo Finance Manager",
   "short_name": "TFM",
-  "description": "友美さん専用の収入・給与管理アプリ",
+  "description": "友美さん専用収入管理",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
