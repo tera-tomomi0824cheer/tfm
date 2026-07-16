@@ -43,6 +43,16 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 .year-hidden{font-size:30px;font-weight:800;letter-spacing:4px;color:#CBD5E1;margin-top:4px}
 .year-hint{font-size:12px;color:#94A3B8;margin-top:8px}
 
+
+.confirm-card{background:#102A2C;border:1px solid #1B5C58;border-radius:16px;padding:14px;margin:12px 0}
+.confirm-title{font-weight:800;margin-bottom:8px}
+.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.confirm-item{background:#0E2028;border:1px solid #24514E;border-radius:11px;padding:9px}
+.confirm-label{font-size:10px;color:#94A3B8}.confirm-value{font-size:14px;font-weight:800;margin-top:3px}
+.inline-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.secondary{width:100%;border:1px solid var(--line);border-radius:12px;background:#172033;color:#E2E8F0;padding:11px;font-weight:800}
+.route-list{margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -90,7 +100,8 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
         <div class="field" id="rankField"><label>審判ランク</label><select name="rank"><option value="">選択</option><option>A</option><option>B</option><option>C</option></select></div>
         <div class="grid"><div class="field"><label>開始</label><input name="start" type="time"></div><div class="field"><label>終了</label><input name="end" type="time"></div></div>
         <div class="field"><label>会場</label><input name="venue"></div>
-        <div class="grid"><div class="field"><label>交通費</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
+        <div class="grid"><div class="field"><label>乗車駅・停留所</label><input name="from" value="望地"></div><div class="field"><label>降車駅</label><input name="to"></div></div>
+        <div class="grid"><div class="field"><label>交通費（往復）</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
         <div id="usaCalc" class="calc">入力すると計算します</div><button class="primary">登録する</button>
       </form>
     </div><div class="card"><div class="section-title">USA履歴</div><div id="usaList"></div></div>
@@ -122,20 +133,38 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
   </div>
 </section>
 
-<section id="fin" class="page"><div class="card"><div class="section-title">🤖 Fin</div><div class="bubble fin">事務所・USA・秦野・FLAPPERSのフォームが揃いました。次は文章から登録候補を作ります。</div><div id="chat"></div><textarea id="finInput" placeholder="例：今日は事務所9-18、15分残業"></textarea><button id="sendFin" class="primary">送信</button></div></section>
+<section id="fin" class="page">
+  <div class="card">
+    <div class="section-title">🤖 Fin Lite</div>
+    <div class="bubble fin">事務所の勤務文を読み取って、登録候補を作れるようになりました。</div>
+    <div class="note">例：「今日は事務所9-18、15分残業」「7/20 事務所 9:00-15:00 休憩なし」</div>
+    <textarea id="finInput" placeholder="勤務内容を話しかけるように入力"></textarea>
+    <button id="sendFin" class="primary" type="button">解析する</button>
+    <div id="finResult"></div>
+    <div id="chat"></div>
+  </div>
+</section>
 
 <section id="settings" class="page"><div class="card"><div class="section-title">設定</div>
 <div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.4.3-alpha / 操作不具合修正</div></div></section>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.0-alpha / Fin Lite・交通費マスター</div></div><div class="card">
+  <div class="section-title">交通費ルートマスター</div>
+  <form id="routeForm">
+    <div class="grid"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
+    <div class="field"><label>往復交通費</label><input name="fare" type="number"></div>
+    <button class="primary" type="submit">ルートを保存</button>
+  </form>
+  <div id="routeList" class="route-list"></div>
+</div></section>
 </main>
 
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
 
 <script>
-const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],chat:[]};
-let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;
+const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],chat:[],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
+let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;
 function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
@@ -147,7 +176,13 @@ function officePreview(){let f=new FormData(officeForm),base=Math.max(0,hours(f.
 officeForm.oninput=officePreview;officeForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),base=Math.max(0,hours(f.get('start'),f.get('end'))-(+f.get('breakH')||0)),ot=+f.get('ot')||0,pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);db.office.unshift({id:uid(),date:f.get('date'),start:f.get('start'),end:f.get('end'),base,ot,pay});e.target.reset();e.target.start.value='09:00';e.target.end.value='18:00';e.target.breakH.value=1;e.target.ot.value=0;save();officePreview()}
 
 function usaPreview(){let f=new FormData(usaForm),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=base+fare+al,tax=Math.floor((base+al)*db.settings.usaTax);usaCalc.textContent=`基本 ${yen(base)} ／ 支給 ${yen(g)} ／ 源泉概算 ${yen(tax)} ／ 手取り ${yen(g-tax)}`}
-usaForm.oninput=usaPreview;usaForm.type.onchange=()=>{rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');usaPreview()};usaForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=Math.round(base+fare+al),tax=Math.floor((base+al)*db.settings.usaTax);db.usa.unshift({id:uid(),date:f.get('date'),type:t,venue:f.get('venue'),gross:g,net:g-tax});e.target.reset();save();usaPreview()}
+function autofillFare(){
+  const from=(usaForm.from.value||'').trim(),to=(usaForm.to.value||'').trim();
+  const r=db.routes.find(x=>x.from===from&&x.to===to);
+  if(r&&r.fare)usaForm.fare.value=r.fare;
+  usaPreview();
+}
+usaForm.oninput=usaPreview;usaForm.from.onchange=autofillFare;usaForm.to.onchange=autofillFare;usaForm.type.onchange=()=>{rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');usaPreview()};usaForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=Math.round(base+fare+al),tax=Math.floor((base+al)*db.settings.usaTax);db.usa.unshift({id:uid(),date:f.get('date'),type:t,venue:f.get('venue'),from:f.get('from'),to:f.get('to'),fare,allowance:al,gross:g,net:g-tax});if(f.get('from')&&f.get('to')&&fare&&!db.routes.some(x=>x.from===f.get('from')&&x.to===f.get('to')))db.routes.push({from:f.get('from'),to:f.get('to'),fare});e.target.reset();e.target.from.value='望地';save();usaPreview()}
 
 hadanoForm.oninput=()=>{let f=new FormData(hadanoForm);hadanoCalc.textContent=`手取り見込み ${yen((+f.get('regular')||0)+(+f.get('extra')||0)-(+f.get('tax')||0))}`};
 hadanoForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),reg=+f.get('regular')||0,extra=+f.get('extra')||0,tax=+f.get('tax')||0;db.hadano.unshift({id:uid(),month:f.get('month'),reg,extra,tax,net:reg+extra-tax});e.target.reset();e.target.regular.value=20000;e.target.extra.value=0;e.target.tax.value=0;save()};
@@ -159,6 +194,86 @@ flapForm.oninput=flapPreview;flapForm.type.onchange=()=>{let t=flapForm.type.val
 
 function del(k,id){db[k]=db[k].filter(x=>x.id!==id);save()}
 function list(el,arr,html){el.innerHTML=arr.map(html).join('')||'<div class="muted">まだ登録がありません</div>'}
+
+function parseTimeToken(token){
+  if(!token)return '';
+  token=token.replace('時',':00').replace('半',':30');
+  if(/^\d{1,2}$/.test(token))token+=':00';
+  if(/^\d{1,2}:\d{2}$/.test(token)){
+    const [h,m]=token.split(':');
+    return `${String(+h).padStart(2,'0')}:${m}`;
+  }
+  return '';
+}
+function dateToISOFromText(text){
+  const now=new Date();
+  if(/今日/.test(text))return now.toISOString().slice(0,10);
+  if(/昨日/.test(text)){const d=new Date(now);d.setDate(d.getDate()-1);return d.toISOString().slice(0,10)}
+  let m=text.match(/(\d{1,2})[\/月](\d{1,2})日?/);
+  if(m)return `${now.getFullYear()}-${String(+m[1]).padStart(2,'0')}-${String(+m[2]).padStart(2,'0')}`;
+  return now.toISOString().slice(0,10);
+}
+function parseOfficeText(text){
+  const date=dateToISOFromText(text);
+  let tm=text.match(/(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)\s*(?:-|〜|~|から)\s*(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)/);
+  let start=tm?parseTimeToken(tm[1]):'',end=tm?parseTimeToken(tm[2]):'';
+  let ot=0,om=text.match(/(\d+(?:\.\d+)?)\s*分\s*(?:残業|延長)/);
+  if(om)ot=+om[1]/60;
+  let oh=text.match(/(\d+(?:\.\d+)?)\s*時間\s*(?:残業|延長)/);
+  if(oh)ot=+oh[1];
+  let breakH=1;
+  if(/休憩なし|休憩0/.test(text))breakH=0;
+  let bm=text.match(/休憩\s*(\d+(?:\.\d+)?)\s*分/);
+  if(bm)breakH=+bm[1]/60;
+  let bh=text.match(/休憩\s*(\d+(?:\.\d+)?)\s*時間/);
+  if(bh)breakH=+bh[1];
+  if(end==='15:00'&&!/休憩/.test(text))breakH=0;
+  if(!start||!end)return null;
+  const base=Math.max(0,hours(start,end)-breakH);
+  const pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);
+  return {date,start,end,breakH,ot,base,pay};
+}
+function showFinCandidate(c,text){
+  finResult.innerHTML=`<div class="confirm-card">
+    <div class="confirm-title">事務所勤務として登録しますか？</div>
+    <div class="confirm-grid">
+      <div class="confirm-item"><div class="confirm-label">勤務日</div><div class="confirm-value">${esc(c.date)}</div></div>
+      <div class="confirm-item"><div class="confirm-label">時間</div><div class="confirm-value">${esc(c.start)}–${esc(c.end)}</div></div>
+      <div class="confirm-item"><div class="confirm-label">休憩</div><div class="confirm-value">${c.breakH.toFixed(2)}h</div></div>
+      <div class="confirm-item"><div class="confirm-label">残業</div><div class="confirm-value">${c.ot.toFixed(2)}h</div></div>
+      <div class="confirm-item"><div class="confirm-label">実働</div><div class="confirm-value">${(c.base+c.ot).toFixed(2)}h</div></div>
+      <div class="confirm-item"><div class="confirm-label">給与</div><div class="confirm-value">${yen(c.pay)}</div></div>
+    </div>
+    <div class="inline-actions">
+      <button class="primary" id="finConfirm" type="button">登録する</button>
+      <button class="secondary" id="finCancel" type="button">取り消す</button>
+    </div>
+  </div>`;
+  finConfirm.onclick=()=>{
+    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,base:c.base,ot:c.ot,pay:c.pay,source:'Fin'});
+    db.chat.push(text);finInput.value='';finResult.innerHTML='';save();
+    alert('Finが事務所勤務を登録しました');
+  };
+  finCancel.onclick=()=>{finResult.innerHTML=''};
+}
+sendFin.onclick=()=>{
+  const v=finInput.value.trim();if(!v)return;
+  const c=parseOfficeText(v);
+  if(c){showFinCandidate(c,v)}
+  else{finResult.innerHTML='<div class="note" style="margin-top:12px">時間を読み取れませんでした。「今日は事務所9-18、15分残業」のように入力してください。</div>'}
+};
+routeForm.onsubmit=e=>{
+  e.preventDefault();const f=new FormData(e.target),from=f.get('from').trim(),to=f.get('to').trim(),fare=+f.get('fare')||0;
+  if(!from||!to||fare<=0){alert('乗車・降車・往復交通費を入力してください');return}
+  const found=db.routes.find(x=>x.from===from&&x.to===to);
+  if(found)found.fare=fare;else db.routes.push({from,to,fare});
+  e.target.reset();e.target.from.value='望地';save();
+};
+function deleteRoute(i){db.routes.splice(i,1);save()}
+function renderRoutes(){
+  routeList.innerHTML=db.routes.map((r,i)=>`<div class="list-item"><div class="row"><div>${esc(r.from)} → ${esc(r.to)}</div><div><span class="amount">${yen(r.fare)}</span> <button class="danger" onclick="deleteRoute(${i})">削除</button></div></div></div>`).join('')||'<div class="muted">登録なし</div>';
+}
+
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
  const ov=db.office.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.pay,0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
@@ -166,14 +281,14 @@ function render(){
  let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
  let yt=db.office.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.pay,0)+db.usa.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.gross,0)+db.hadano.filter(x=>x.month.startsWith(y)).reduce((s,x)=>s+x.reg+x.extra,0)+db.flap.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.profit,0);yearTotal.textContent=yen(yt);
  list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${x.base.toFixed(2)}h＋残業${x.ot.toFixed(2)}h</div></div><div><div class="amount">${yen(x.pay)}</div><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div>`);
- list(usaList,db.usa,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
+ list(usaList,db.usa,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')} ${x.from&&x.to?'／ '+esc(x.from)+'→'+esc(x.to):''}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
  list(hadanoList,db.hadano,x=>`<div class="list-item"><div class="row"><div>${esc(x.month)}<div class="muted">通常${yen(x.reg)} 追加${yen(x.extra)}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('hadano','${x.id}')">削除</button></div></div></div>`);
  list(flapList,db.flap,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.detail||'')}</div></div><div><div class="amount">${yen(x.profit)}</div><button class="danger" onclick="del('flap','${x.id}')">削除</button></div></div></div>`);
- drawCalendar();
+ drawCalendar();renderRoutes();chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">登録済みです。</div>`).join('');
 }
 let cal=new Date();function drawCalendar(){let Y=cal.getFullYear(),M=cal.getMonth(),prefix=`${Y}-${String(M+1).padStart(2,'0')}`;monthLabel.textContent=`${Y}年 ${M+1}月`;let first=new Date(Y,M,1).getDay(),days=new Date(Y,M+1,0).getDate(),names=['日','月','火','水','木','金','土'];calendarGrid.innerHTML=names.map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';let t=new Date();for(let d=1;d<=days;d++){let date=`${prefix}-${String(d).padStart(2,'0')}`,cls='';if(db.office.some(x=>x.date===date))cls='office';else if(db.usa.some(x=>x.date===date))cls='usa';else if(db.flap.some(x=>x.date===date))cls='flap';else if(db.hadano.some(x=>x.month===prefix))cls='hadano';let today=Y===t.getFullYear()&&M===t.getMonth()&&d===t.getDate()?'today':'';calendarGrid.innerHTML+=`<div class="day ${cls} ${today}">${d}</div>`}}
 prevMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);drawCalendar()};nextMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()+1,1);drawCalendar()};
-sendFin.onclick=()=>{let v=finInput.value.trim();if(!v)return;db.chat.push(v);chat.innerHTML+=`<div class="bubble user">${esc(v)}</div><div class="bubble fin">受け取りました。自動解析は次の更新で追加します。</div>`;finInput.value='';save()}
+
 officeHourly.value=db.settings.officeHourly;otRate.value=db.settings.otRate;threewayCap.value=db.settings.threewayCap;usaSeminar.value=db.settings.usaSeminar;usaCoach.value=db.settings.usaCoach;
 saveSettings.onclick=()=>{db.settings.officeHourly=+officeHourly.value||1300;db.settings.otRate=+otRate.value||1.25;db.settings.threewayCap=+threewayCap.value||90000;db.settings.usaSeminar=+usaSeminar.value||1800;db.settings.usaCoach=+usaCoach.value||4500;save();alert('保存しました')}
 
