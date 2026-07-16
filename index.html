@@ -35,17 +35,24 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 .day.office::after,.day.usa::after,.day.flap::after,.day.hadano::after{content:"";display:block;width:6px;height:6px;border-radius:50%;margin:3px auto 0}.day.office::after{background:#14B8A6}.day.usa::after{background:#60A5FA}.day.flap::after{background:#F472B6}.day.hadano::after{background:#F59E0B}
 .bubble{padding:12px 14px;border-radius:16px;margin:8px 0;max-width:88%}.fin{background:#16343a}.user{background:#243246;margin-left:auto}
 .hidden{display:none!important}
+
+.privacy-value{filter:blur(9px);user-select:none;transition:filter .2s ease}
+.privacy-visible{filter:none!important;user-select:auto}
+.privacy-toggle{border:1px solid var(--line);background:#172033;color:#E2E8F0;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:800}
+.privacy-row{display:flex;justify-content:flex-end;margin-bottom:12px}
+
 </style>
 </head>
 <body>
 <header><h1>TFM</h1></header>
 <main>
 <section id="home" class="page active">
-  <div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額・利益</div></div>
-  <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big">¥0</div></div></div>
-  <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
-  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
-  <div class="card"><div class="section-title">今年の累計</div><div id="yearTotal" class="big">¥0</div><div class="muted">給与・報酬・FLAPPERS利益の合計</div></div>
+  <div class="privacy-row"><button id="privacyToggle" class="privacy-toggle" type="button">👁 金額を表示</button></div>
+  <div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big privacy-value">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額・利益</div></div>
+  <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big privacy-value">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big privacy-value">¥0</div></div></div>
+  <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big privacy-value">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big privacy-value">¥0</div></div></div>
+  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount" class="privacy-value">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount" class="privacy-value">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
+  <div class="card"><div class="section-title">今年の累計</div><div id="yearTotal" class="big privacy-value">¥0</div><div class="muted">給与・報酬・FLAPPERS利益の合計</div></div>
 </section>
 
 <section id="calendar" class="page"><div class="card"><div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div><div class="cal-grid" id="calendarGrid"></div><div class="muted" style="margin-top:12px">●ティール 事務所　●青 USA　●ピンク 平井　●橙 秦野</div></div></section>
@@ -113,7 +120,7 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 <div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.4.0-alpha / Sprint 4 Bundle</div></div></section>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.4.1-alpha / Privacy Update</div></div></section>
 </main>
 
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
@@ -161,7 +168,16 @@ prevMonth.onclick=()=>{cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);drawCa
 sendFin.onclick=()=>{let v=finInput.value.trim();if(!v)return;db.chat.push(v);chat.innerHTML+=`<div class="bubble user">${esc(v)}</div><div class="bubble fin">受け取りました。自動解析は次の更新で追加します。</div>`;finInput.value='';save()}
 officeHourly.value=db.settings.officeHourly;otRate.value=db.settings.otRate;threewayCap.value=db.settings.threewayCap;usaSeminar.value=db.settings.usaSeminar;usaCoach.value=db.settings.usaCoach;
 saveSettings.onclick=()=>{db.settings.officeHourly=+officeHourly.value||1300;db.settings.otRate=+otRate.value||1.25;db.settings.threewayCap=+threewayCap.value||90000;db.settings.usaSeminar=+usaSeminar.value||1800;db.settings.usaCoach=+usaCoach.value||4500;save();alert('保存しました')}
-rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();render();
+rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();render();applyPrivacy();
+
+let privacyVisible=false;
+function applyPrivacy(){
+  document.querySelectorAll('.privacy-value').forEach(el=>el.classList.toggle('privacy-visible',privacyVisible));
+  privacyToggle.textContent=privacyVisible?'🙈 金額を隠す':'👁 金額を表示';
+  privacyToggle.setAttribute('aria-pressed',privacyVisible?'true':'false');
+}
+privacyToggle.onclick=()=>{privacyVisible=!privacyVisible;applyPrivacy()};
+
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 </body></html>
