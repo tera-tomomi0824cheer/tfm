@@ -207,6 +207,13 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .file-input-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
 .danger-zone{border-color:#7F1D1D}
 
+
+/* v1.0.0 事務所立替精算 */
+.reimburse-note{background:#172033;border:1px solid #475569;border-radius:12px;padding:10px;font-size:12px;color:#CBD5E1;line-height:1.6}
+.tax-free{color:#93C5FD}
+.edit-button{border:1px solid #334155;background:#172033;color:#E2E8F0;border-radius:10px;padding:7px 10px}
+.item-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -219,7 +226,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
     <div class="card mini"><div class="muted">未入金見込み</div><div id="homeOutstanding" class="big">¥0</div></div>
   </div>
   <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
-  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
+  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">立替精算見込み</span><strong id="officeReimbursementAmount" class="tax-free">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
   <button id="openStatement" class="statement-button" type="button">📄 月次明細を見る</button>
   <div id="yearCard" class="card year-card" role="button" tabindex="0" aria-expanded="false">
   <div class="section-title">今年の累計</div>
@@ -252,7 +259,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
     <div class="statement-row"><span>残業時間</span><strong id="stOfficeOt">0.00h</strong></div>
     <div class="statement-row"><span>給与見込み</span><strong id="stOfficePay">¥0</strong></div>
     <div class="statement-row"><span>スリーウェイ</span><strong id="stThreeway">¥0</strong></div>
-    <div class="statement-row"><span>翌月の事務所分</span><strong id="stOfficeNext">¥0</strong></div>
+    <div class="statement-row"><span>翌月の事務所分</span><strong id="stOfficeNext">¥0</strong></div><div class="statement-row"><span>立替精算</span><strong id="stOfficeReimbursement" class="tax-free">¥0</strong></div>
   </div>
   <div class="card">
     <div class="section-title">USA</div>
@@ -312,7 +319,13 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
         <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
         <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
         <div class="field"><label>休憩(h)</label><input name="breakH" type="number" step=".25" value="1"></div>
-        <div id="officeCalc" class="calc">入力すると計算します</div><div class="muted" style="margin:-4px 0 10px">休憩を除いた実働8時間を超えた分を、自動で残業として計算します。</div>
+        <div class="grid compact-two">
+  <div class="field"><label>立替精算額</label><input name="reimbursement" type="number" min="0" value="0" placeholder="交通費など"></div>
+  <div class="field"><label>立替内容</label><input name="reimbursementMemo" placeholder="例：関与先から直帰"></div>
+</div>
+<div class="field"><label>勤務メモ</label><input name="memo" placeholder="任意"></div>
+<div class="reimburse-note">立替精算は受取額には加算しますが、給与・年収には含めません。</div>
+<div id="officeCalc" class="calc">入力すると計算します</div><div class="muted" style="margin:-4px 0 10px">休憩を除いた実働8時間を超えた分を、自動で残業として計算します。</div>
         <button class="primary">登録する</button>
       </form>
     </div>
@@ -426,7 +439,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.9.0-alpha / バックアップ</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.0.0 / 立替精算・履歴編集</div></div>
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -466,17 +479,20 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.query
 document.querySelectorAll('.tabbar button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.formpane').forEach(x=>x.classList.remove('active'));document.getElementById(b.dataset.form).classList.add('active')});
 
 
+
 function officeValues(form){
   const f=new FormData(form);
   const worked=Math.max(0,hours(f.get('start'),f.get('end'))-(+f.get('breakH')||0));
   const base=Math.min(8,worked);
   const ot=Math.max(0,worked-8);
   const pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);
-  return {f,worked,base,ot,pay};
+  const reimbursement=+f.get('reimbursement')||0;
+  const receiptTotal=pay+reimbursement;
+  return {f,worked,base,ot,pay,reimbursement,receiptTotal};
 }
 function officePreview(){
   const x=officeValues(officeForm);
-  officeCalc.textContent=`実働 ${x.worked.toFixed(2)}h ／ 通常 ${x.base.toFixed(2)}h ／ 残業 ${x.ot.toFixed(2)}h（${db.settings.otRate}倍）／ 給与 ${yen(x.pay)}`;
+  officeCalc.innerHTML=`実働 ${x.worked.toFixed(2)}h ／ 通常 ${x.base.toFixed(2)}h ／ 残業 ${x.ot.toFixed(2)}h（${db.settings.otRate}倍）<br>給与 ${yen(x.pay)} ＋ 立替精算 ${yen(x.reimbursement)} ＝ 受取見込み <strong>${yen(x.receiptTotal)}</strong>`;
 }
 officeForm.oninput=officePreview;
 officeForm.onsubmit=e=>{
@@ -486,12 +502,14 @@ officeForm.onsubmit=e=>{
   if(x.worked<=0){alert('開始・終了・休憩時間を確認してください');return}
   db.office.unshift({
     id:uid(),date:x.f.get('date'),start:x.f.get('start'),end:x.f.get('end'),
-    breakH:+x.f.get('breakH')||0,worked:x.worked,base:x.base,ot:x.ot,pay:x.pay
+    breakH:+x.f.get('breakH')||0,worked:x.worked,base:x.base,ot:x.ot,pay:x.pay,
+    reimbursement:x.reimbursement,reimbursementMemo:x.f.get('reimbursementMemo'),memo:x.f.get('memo')
   });
   e.target.reset();
   e.target.start.value='09:00';
   e.target.end.value='18:00';
   e.target.breakH.value=1;
+  e.target.reimbursement.value=0;
   save();
   officePreview();
 }
@@ -512,6 +530,25 @@ const PRODUCTS={'Tシャツ':[3000,2000],'スカッツ':[5000,3000],'リボン':
 function flapValues(){let f=new FormData(flapForm),t=f.get('type'),sale=0,cost=0,detail='';if(t==='月謝'){sale=(+f.get('people')||0)*6000;cost=sale*.4;detail=`${f.get('people')}人`}else if(t==='入会金'){sale=(+f.get('people')||0)*5000;detail=`${f.get('people')}人`}else if(t==='年会費'){sale=(+f.get('people')||0)*3000;detail=`${f.get('people')}人`}else if(t==='物販'){let p=PRODUCTS[f.get('product')],q=+f.get('qty')||0;sale=p[0]*q;cost=p[1]*q+(f.get('product')==='スカッツ'?(+f.get('fee')||0):0);detail=`${f.get('product')}×${q}`}else if(t==='その他経費'){cost=+f.get('custom')||0}else sale=+f.get('custom')||0;return{f,t,sale,cost,profit:sale-cost,detail}}
 function flapPreview(){let x=flapValues();flapCalc.textContent=`売上 ${yen(x.sale)} ／ 原価・支払 ${yen(x.cost)} ／ 利益 ${yen(x.profit)}`}
 flapForm.oninput=flapPreview;flapForm.type.onchange=()=>{let t=flapForm.type.value;peopleArea.classList.toggle('hidden',!['月謝','入会金','年会費'].includes(t));productArea.classList.toggle('hidden',t!=='物販');customArea.classList.toggle('hidden',!['イベント収入','その他経費'].includes(t));flapPreview()};flapForm.onsubmit=e=>{e.preventDefault();let x=flapValues();db.flap.unshift({id:uid(),date:x.f.get('date'),type:x.t,sale:x.sale,cost:x.cost,profit:x.profit,detail:x.detail});e.target.reset();save();flapPreview()}
+
+
+function editOffice(id){
+  const x=db.office.find(v=>v.id===id);
+  if(!x)return;
+  document.querySelector('nav button[data-page="input"]').click();
+  document.querySelector('.tabbar button[data-form="officePane"]').click();
+  officeForm.date.value=x.date||'';
+  officeForm.start.value=x.start||'09:00';
+  officeForm.end.value=x.end||'18:00';
+  officeForm.breakH.value=Number.isFinite(+x.breakH)?+x.breakH:1;
+  officeForm.reimbursement.value=+x.reimbursement||0;
+  officeForm.reimbursementMemo.value=x.reimbursementMemo||'';
+  officeForm.memo.value=x.memo||'';
+  db.office=db.office.filter(v=>v.id!==id);
+  save();
+  officePreview();
+  officeForm.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 function del(k,id){db[k]=db[k].filter(x=>x.id!==id);save()}
 function list(el,arr,html){el.innerHTML=arr.map(html).join('')||'<div class="muted">まだ登録がありません</div>'}
@@ -570,7 +607,7 @@ function showFinCandidate(c,text){
     </div>
   </div>`;
   finConfirm.onclick=()=>{
-    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,breakH:c.breakH,worked:c.worked,base:c.base,ot:c.ot,pay:c.pay,source:'Fin'});
+    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,breakH:c.breakH,worked:c.worked,base:c.base,ot:c.ot,pay:c.pay,reimbursement:0,reimbursementMemo:'',memo:'',source:'Fin'});
     db.chat.push(text);finInput.value='';finResult.innerHTML='';save();
     alert('Finが事務所勤務を登録しました');
   };
@@ -619,6 +656,7 @@ function renderStatement(){
   const officeBase=officeItems.reduce((s,x)=>s+(+x.base||0),0);
   const officeOt=officeItems.reduce((s,x)=>s+(+x.ot||0),0);
   const officePay=officeItems.reduce((s,x)=>s+(+x.pay||0),0);
+  const officeReimbursement=officeItems.reduce((s,x)=>s+(+x.reimbursement||0),0);
   const threeway=Math.min(db.settings.threewayCap,officePay);
   const officeNext=Math.max(0,officePay-db.settings.threewayCap);
   const usaItems=db.usa.filter(x=>ym(x.date)===month);
@@ -634,7 +672,7 @@ function renderStatement(){
   const flapProfit=flapItems.reduce((s,x)=>s+(+x.profit||0),0);
   const payments=db.payments.filter(x=>ym(x.date)===month);
   const received=payments.reduce((s,x)=>s+(+x.amount||0),0);
-  const expected=officePay+usaGross+hadanoRegular+hadanoExtra+flapProfit;
+  const expected=officePay+officeReimbursement+usaGross+hadanoRegular+hadanoExtra+flapProfit;
   const difference=received-expected;
 
   statementExpected.textContent=yen(expected);
@@ -649,6 +687,7 @@ function renderStatement(){
   stOfficePay.textContent=yen(officePay);
   stThreeway.textContent=yen(threeway);
   stOfficeNext.textContent=yen(officeNext);
+  stOfficeReimbursement.textContent=yen(officeReimbursement);
 
   const usaTypes={};
   usaItems.forEach(x=>{usaTypes[x.type]=(usaTypes[x.type]||0)+1});
@@ -688,7 +727,7 @@ statementMonth.onchange=renderStatement;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'0.9.0',
+    version:'1.0.0',
     exportedAt:new Date().toISOString(),
     data:db
   };
@@ -740,13 +779,13 @@ importBackup.onchange=async e=>{
 
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
- const ov=db.office.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.pay,0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
+ const officeMonth=db.office.filter(x=>ym(x.date)===m),ov=officeMonth.reduce((s,x)=>s+(+x.pay||0),0),orv=officeMonth.reduce((s,x)=>s+(+x.reimbursement||0),0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
  const expected=ov+uv+hv+fv;
  const received=db.payments.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.amount,0);
  workedTotal.textContent=yen(expected);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);
- let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
+ let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));officeReimbursementAmount.textContent=yen(orv);threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
  let yt=db.office.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.pay,0)+db.usa.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.gross,0)+db.hadano.filter(x=>x.month.startsWith(y)).reduce((s,x)=>s+x.reg+x.extra,0)+db.flap.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.profit,0);yearTotal.textContent=yen(yt);
- list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${x.base.toFixed(2)}h＋残業${x.ot.toFixed(2)}h</div></div><div><div class="amount">${yen(x.pay)}</div><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div>`);
+ list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${(+x.base||0).toFixed(2)}h＋残業${(+x.ot||0).toFixed(2)}h</div>${(+x.reimbursement||0)>0?`<div class="muted tax-free">立替精算 ${yen(x.reimbursement)} ${esc(x.reimbursementMemo||'')}</div>`:''}${x.memo?`<div class="muted">${esc(x.memo)}</div>`:''}</div><div style="text-align:right"><div class="amount">${yen((+x.pay||0)+(+x.reimbursement||0))}</div><div class="muted">給与 ${yen(x.pay)}</div><div class="item-actions"><button class="edit-button" onclick="editOffice('${x.id}')">編集</button><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div></div>`);
  list(usaList,db.usa,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')} ${x.from&&x.to?'／ '+esc(x.from)+'→'+esc(x.to):''}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
  list(hadanoList,db.hadano,x=>`<div class="list-item"><div class="row"><div>${esc(x.month)}<div class="muted">通常${yen(x.reg)} 追加${yen(x.extra)}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('hadano','${x.id}')">削除</button></div></div></div>`);
  list(flapList,db.flap,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.detail||'')}</div></div><div><div class="amount">${yen(x.profit)}</div><button class="danger" onclick="del('flap','${x.id}')">削除</button></div></div></div>`);
