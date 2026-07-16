@@ -301,8 +301,8 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
       <form id="officeForm">
         <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
         <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
-        <div class="grid compact-two"><div class="field"><label>休憩(h)</label><input name="breakH" type="number" step=".25" value="1"></div><div class="field"><label>残業(h)</label><input name="ot" type="number" step=".25" value="0"></div></div>
-        <div id="officeCalc" class="calc">入力すると計算します</div>
+        <div class="field"><label>休憩(h)</label><input name="breakH" type="number" step=".25" value="1"></div>
+        <div id="officeCalc" class="calc">入力すると計算します</div><div class="muted" style="margin:-4px 0 10px">休憩を除いた実働8時間を超えた分を、自動で残業として計算します。</div>
         <button class="primary">登録する</button>
       </form>
     </div>
@@ -413,10 +413,10 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 </section>
 
 <section id="settings" class="page"><div class="card"><div class="section-title">設定</div>
-<div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
+<div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.8.1-alpha / データ表示復旧</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.8.2-alpha / 残業自動判定</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
@@ -439,8 +439,36 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(b.dataset.page).classList.add('active');scrollTo(0,0)});
 document.querySelectorAll('.tabbar button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.formpane').forEach(x=>x.classList.remove('active'));document.getElementById(b.dataset.form).classList.add('active')});
 
-function officePreview(){let f=new FormData(officeForm),base=Math.max(0,hours(f.get('start'),f.get('end'))-(+f.get('breakH')||0)),ot=+f.get('ot')||0,pay=base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate;officeCalc.textContent=`所定内 ${base.toFixed(2)}h ／ 残業 ${ot.toFixed(2)}h（${db.settings.otRate}倍）／ 給与 ${yen(pay)}`}
-officeForm.oninput=officePreview;officeForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),base=Math.max(0,hours(f.get('start'),f.get('end'))-(+f.get('breakH')||0)),ot=+f.get('ot')||0,pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);db.office.unshift({id:uid(),date:f.get('date'),start:f.get('start'),end:f.get('end'),base,ot,pay});e.target.reset();e.target.start.value='09:00';e.target.end.value='18:00';e.target.breakH.value=1;e.target.ot.value=0;save();officePreview()}
+
+function officeValues(form){
+  const f=new FormData(form);
+  const worked=Math.max(0,hours(f.get('start'),f.get('end'))-(+f.get('breakH')||0));
+  const base=Math.min(8,worked);
+  const ot=Math.max(0,worked-8);
+  const pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);
+  return {f,worked,base,ot,pay};
+}
+function officePreview(){
+  const x=officeValues(officeForm);
+  officeCalc.textContent=`実働 ${x.worked.toFixed(2)}h ／ 通常 ${x.base.toFixed(2)}h ／ 残業 ${x.ot.toFixed(2)}h（${db.settings.otRate}倍）／ 給与 ${yen(x.pay)}`;
+}
+officeForm.oninput=officePreview;
+officeForm.onsubmit=e=>{
+  e.preventDefault();
+  const x=officeValues(e.target);
+  if(!x.f.get('date')){alert('勤務日を入力してください');return}
+  if(x.worked<=0){alert('開始・終了・休憩時間を確認してください');return}
+  db.office.unshift({
+    id:uid(),date:x.f.get('date'),start:x.f.get('start'),end:x.f.get('end'),
+    breakH:+x.f.get('breakH')||0,worked:x.worked,base:x.base,ot:x.ot,pay:x.pay
+  });
+  e.target.reset();
+  e.target.start.value='09:00';
+  e.target.end.value='18:00';
+  e.target.breakH.value=1;
+  save();
+  officePreview();
+});e.target.reset();e.target.start.value='09:00';e.target.end.value='18:00';e.target.breakH.value=1;e.target.ot.value=0;save();officePreview()}
 
 function usaPreview(){let f=new FormData(usaForm),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=base+fare+al,tax=Math.floor((base+al)*db.settings.usaTax);usaCalc.textContent=`基本 ${yen(base)} ／ 支給 ${yen(g)} ／ 源泉概算 ${yen(tax)} ／ 手取り ${yen(g-tax)}`}
 function autofillFare(){
@@ -480,14 +508,11 @@ function dateToISOFromText(text){
   if(m)return `${now.getFullYear()}-${String(+m[1]).padStart(2,'0')}-${String(+m[2]).padStart(2,'0')}`;
   return now.toISOString().slice(0,10);
 }
+
 function parseOfficeText(text){
   const date=dateToISOFromText(text);
   let tm=text.match(/(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)\s*(?:-|〜|~|から)\s*(\d{1,2}(?::\d{2})?|(?:\d{1,2})時(?:半)?)/);
   let start=tm?parseTimeToken(tm[1]):'',end=tm?parseTimeToken(tm[2]):'';
-  let ot=0,om=text.match(/(\d+(?:\.\d+)?)\s*分\s*(?:残業|延長)/);
-  if(om)ot=+om[1]/60;
-  let oh=text.match(/(\d+(?:\.\d+)?)\s*時間\s*(?:残業|延長)/);
-  if(oh)ot=+oh[1];
   let breakH=1;
   if(/休憩なし|休憩0/.test(text))breakH=0;
   let bm=text.match(/休憩\s*(\d+(?:\.\d+)?)\s*分/);
@@ -496,9 +521,11 @@ function parseOfficeText(text){
   if(bh)breakH=+bh[1];
   if(end==='15:00'&&!/休憩/.test(text))breakH=0;
   if(!start||!end)return null;
-  const base=Math.max(0,hours(start,end)-breakH);
+  const worked=Math.max(0,hours(start,end)-breakH);
+  const base=Math.min(8,worked);
+  const ot=Math.max(0,worked-8);
   const pay=Math.round(base*db.settings.officeHourly+ot*db.settings.officeHourly*db.settings.otRate);
-  return {date,start,end,breakH,ot,base,pay};
+  return {date,start,end,breakH,worked,ot,base,pay};
 }
 function showFinCandidate(c,text){
   finResult.innerHTML=`<div class="confirm-card">
@@ -517,7 +544,7 @@ function showFinCandidate(c,text){
     </div>
   </div>`;
   finConfirm.onclick=()=>{
-    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,base:c.base,ot:c.ot,pay:c.pay,source:'Fin'});
+    db.office.unshift({id:uid(),date:c.date,start:c.start,end:c.end,breakH:c.breakH,worked:c.worked,base:c.base,ot:c.ot,pay:c.pay,source:'Fin'});
     db.chat.push(text);finInput.value='';finResult.innerHTML='';save();
     alert('Finが事務所勤務を登録しました');
   };
