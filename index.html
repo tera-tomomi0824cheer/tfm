@@ -10,81 +10,298 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <title>TFM</title>
 <style>
-:root{--bg:#0F172A;--card:#1E293B;--card2:#172033;--teal:#0F766E;--teal2:#14B8A6;--green:#22C55E;--white:#F8FAFC;--muted:#94A3B8;--line:#334155;--red:#EF4444}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--white)}
-header{position:sticky;top:0;z-index:10;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);padding:calc(12px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line)}header h1{margin:0;font-size:20px;text-align:center}
-main{max-width:680px;margin:auto;padding:16px 14px 105px}.page{display:none}.page.active{display:block}
+:root{
+  --bg:#0F172A;--card:#1E293B;--card2:#172033;--teal:#0F766E;--teal2:#14B8A6;
+  --green:#22C55E;--white:#F8FAFC;--muted:#94A3B8;--line:#334155;--red:#EF4444;
+  --amber:#F59E0B;--soft:#102A2C
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--white)}
+header{position:sticky;top:0;z-index:10;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);padding:calc(12px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:20px;text-align:center}
+main{max-width:680px;margin:auto;padding:16px 14px 105px}
+.page{display:none}.page.active{display:block}
 .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 10px 24px rgba(0,0,0,.18)}
-.hero{background:linear-gradient(135deg,var(--teal),#115E59)}.eyebrow{font-size:12px;color:#CCFBF1}.big{font-size:30px;font-weight:800;margin-top:4px}.muted{color:var(--muted);font-size:13px}.section-title{font-size:15px;font-weight:800;margin-bottom:12px}
+.hero{background:linear-gradient(135deg,var(--teal),#115E59)}
+.eyebrow{font-size:12px;color:#CCFBF1}.big{font-size:30px;font-weight:800;margin-top:4px}
+.muted{color:var(--muted);font-size:13px}.section-title{font-size:15px;font-weight:800;margin-bottom:12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini{padding:14px}.mini .big{font-size:22px}
 nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#0B1220;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
-nav button{background:transparent;border:0;color:var(--muted);padding:9px 2px;font-size:11px}nav button.active{color:#5EEAD4;font-weight:800}
-textarea,input{width:100%;background:#101827;border:1px solid var(--line);border-radius:14px;color:white;padding:13px;font-size:16px}textarea{min-height:100px}
+nav button{background:transparent;border:0;color:var(--muted);padding:9px 2px;font-size:11px}
+nav button.active{color:#5EEAD4;font-weight:800}
+textarea,input{width:100%;background:#101827;border:1px solid var(--line);border-radius:14px;color:white;padding:13px;font-size:16px}
+textarea{min-height:88px}
 .field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:700;color:#CBD5E1;margin-bottom:6px}
 .primary{width:100%;border:0;border-radius:14px;background:var(--teal);color:white;padding:14px;font-size:16px;font-weight:800;margin-top:6px}
 .danger{border:1px solid #7F1D1D;background:#2B1519;color:#FCA5A5;border-radius:10px;padding:7px 10px}
 .bubble{padding:12px 14px;border-radius:16px;margin:8px 0;max-width:88%}.fin{background:#16343a}.user{background:#243246;margin-left:auto}
 .status{background:#172033;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}
-.calc{background:#102A2C;border:1px solid #1B5C58;border-radius:14px;padding:13px;margin:12px 0}
-.list-item{border-top:1px solid var(--line);padding:12px 0}.list-item:first-child{border-top:0}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.amount{font-weight:800;color:#5EEAD4}
+.calc{background:var(--soft);border:1px solid #1B5C58;border-radius:16px;padding:14px;margin:12px 0}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.calc-box{background:#0E2028;border:1px solid #24514E;border-radius:12px;padding:10px}
+.calc-label{font-size:11px;color:#94A3B8}.calc-value{font-size:17px;font-weight:800;margin-top:3px}
+.list-item{border-top:1px solid var(--line);padding:12px 0}.list-item:first-child{border-top:0}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.amount{font-weight:800;color:#5EEAD4}
 .progress{height:10px;background:#0B1220;border-radius:999px;overflow:hidden;margin-top:8px}.progress>div{height:100%;background:linear-gradient(90deg,var(--teal2),var(--green))}
 .note{background:#2A2110;border:1px solid #6B4F13;border-radius:12px;padding:10px;color:#FDE68A;font-size:12px}
 .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal-head button{background:#243246;color:white;border:1px solid var(--line);border-radius:10px;padding:7px 11px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted)}.day{background:#172033;border:1px solid #26364d;border-radius:10px;min-height:44px}.day.today{outline:2px solid var(--teal2)}.day.work::after{content:"";display:block;width:6px;height:6px;background:var(--teal2);border-radius:50%;margin:4px auto 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted)}
+.day{background:#172033;border:1px solid #26364d;border-radius:10px;min-height:44px}.day.today{outline:2px solid var(--teal2)}
+.day.work::after{content:"";display:block;width:6px;height:6px;background:var(--teal2);border-radius:50%;margin:4px auto 0}
+.breakdown{font-size:12px;color:#CBD5E1;margin-top:4px;line-height:1.65}
+.badge{display:inline-block;border-radius:999px;padding:3px 7px;font-size:10px;background:#17372F;color:#86EFAC;margin-left:5px}
 </style>
 </head>
 <body>
 <header><h1>TFM</h1></header>
 <main>
 <section id="home" class="page active">
-<div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額</div></div>
-<div class="grid"><div class="card mini"><div class="muted">当月25日予定</div><div id="threewayHome" class="big">¥0</div></div><div class="card mini"><div class="muted">翌月25日予定</div><div id="officeNextHome" class="big">¥0</div></div></div>
-<div class="card"><div class="section-title">今月の事務所</div><div class="row"><span class="muted">勤務回数</span><strong id="officeCount">0回</strong></div><div class="row" style="margin-top:8px"><span class="muted">給与見込み</span><strong id="officeTotal">¥0</strong></div><div class="row" style="margin-top:8px"><span class="muted">スリーウェイ進捗</span><strong id="threewayProgressText">¥0 / ¥90,000</strong></div><div class="progress"><div id="threewayProgressBar"></div></div></div>
-<div class="card"><div class="section-title">支給内訳</div><div class="row"><span class="muted">スリーウェイ（当月25日）</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:10px"><span class="muted">坂口税理士事務所（翌月25日）</span><strong id="officeNextAmount">¥0</strong></div><div class="note" style="margin-top:12px">税金・社会保険控除前の概算です。実際の手取りは給与明細を優先してください。</div></div>
+  <div class="card hero">
+    <div class="eyebrow">Tomo Finance Manager</div>
+    <div id="workedTotal" class="big">¥0</div>
+    <div class="muted" style="color:#D5F5EF">今月働いた金額</div>
+  </div>
+  <div class="grid">
+    <div class="card mini"><div class="muted">当月25日予定</div><div id="threewayHome" class="big">¥0</div></div>
+    <div class="card mini"><div class="muted">翌月25日予定</div><div id="officeNextHome" class="big">¥0</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">今月の事務所</div>
+    <div class="row"><span class="muted">勤務回数</span><strong id="officeCount">0回</strong></div>
+    <div class="row" style="margin-top:8px"><span class="muted">実働合計</span><strong id="officeHoursTotal">0.00時間</strong></div>
+    <div class="row" style="margin-top:8px"><span class="muted">追加残業合計</span><strong id="officeOvertimeTotal">0.00時間</strong></div>
+    <div class="row" style="margin-top:8px"><span class="muted">給与見込み</span><strong id="officeTotal">¥0</strong></div>
+    <div class="row" style="margin-top:8px"><span class="muted">スリーウェイ進捗</span><strong id="threewayProgressText">¥0 / ¥90,000</strong></div>
+    <div class="progress"><div id="threewayProgressBar"></div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">支給内訳</div>
+    <div class="row"><span class="muted">スリーウェイ（当月25日）</span><strong id="threewayAmount">¥0</strong></div>
+    <div class="row" style="margin-top:10px"><span class="muted">坂口税理士事務所（翌月25日）</span><strong id="officeNextAmount">¥0</strong></div>
+    <div class="note" style="margin-top:12px">残業割増率は未設定です。現時点では、追加残業も通常時給1,300円で概算しています。</div>
+  </div>
 </section>
 
-<section id="calendar" class="page"><div class="card"><div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div><div class="cal-grid" id="calendarGrid"></div></div></section>
+<section id="calendar" class="page">
+  <div class="card">
+    <div class="cal-head"><button id="prevMonth">‹</button><strong id="monthLabel"></strong><button id="nextMonth">›</button></div>
+    <div class="cal-grid" id="calendarGrid"></div>
+  </div>
+</section>
 
 <section id="input" class="page">
-<div class="card"><div class="section-title">事務所勤務を登録</div>
-<form id="officeForm">
-<div class="field"><label>勤務日</label><input name="date" type="date" required></div>
-<div class="grid"><div class="field"><label>開始</label><input name="start" type="time" value="09:00" required></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00" required></div></div>
-<div class="grid"><div class="field"><label>休憩（時間）</label><input name="breakHours" type="number" step="0.25" min="0" value="1"></div><div class="field"><label>追加残業（時間）</label><input name="overtime" type="number" step="0.25" min="0" value="0"></div></div>
-<div class="field"><label>メモ</label><textarea name="memo" placeholder="任意"></textarea></div>
-<div id="officeCalc" class="calc">実働と給与をここに表示します</div><button class="primary" type="submit">登録する</button>
-</form></div>
-<div class="card"><div class="section-title">勤務履歴</div><div id="officeList"></div></div>
+  <div class="card">
+    <div class="section-title">事務所勤務を登録</div>
+    <form id="officeForm">
+      <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
+      <div class="grid">
+        <div class="field"><label>開始</label><input name="start" type="time" value="09:00" required></div>
+        <div class="field"><label>終了</label><input name="end" type="time" value="18:00" required></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>休憩（時間）</label><input name="breakHours" type="number" step="0.25" min="0" value="1"></div>
+        <div class="field"><label>追加残業（時間）</label><input name="overtime" type="number" step="0.25" min="0" value="0"></div>
+      </div>
+      <div class="field"><label>メモ</label><textarea name="memo" placeholder="任意"></textarea></div>
+      <div class="calc">
+        <strong>自動計算</strong>
+        <div class="calc-grid">
+          <div class="calc-box"><div class="calc-label">所定内実働</div><div id="previewBaseHours" class="calc-value">0.00時間</div></div>
+          <div class="calc-box"><div class="calc-label">追加残業</div><div id="previewOvertime" class="calc-value">0.00時間</div></div>
+          <div class="calc-box"><div class="calc-label">合計実働</div><div id="previewTotalHours" class="calc-value">0.00時間</div></div>
+          <div class="calc-box"><div class="calc-label">給与見込み</div><div id="previewPay" class="calc-value">¥0</div></div>
+        </div>
+        <div id="previewPaymentDates" class="muted" style="margin-top:10px">支給予定日は勤務日を入力すると表示されます</div>
+      </div>
+      <button class="primary" type="submit">登録する</button>
+    </form>
+  </div>
+  <div class="card"><div class="section-title">勤務履歴</div><div id="officeList"></div></div>
 </section>
 
-<section id="fin" class="page"><div class="card"><div class="section-title">🤖 Fin</div><div class="bubble fin">事務所の支給内訳まで計算できるようになりました。</div><div id="chat"></div><textarea id="finInput" placeholder="例：今日は事務所9時〜18時、15分残業！"></textarea><button id="sendFin" class="primary">送信</button><div class="muted" style="margin-top:10px">Finの自動解析は後続Sprintで追加します。</div></div></section>
+<section id="fin" class="page">
+  <div class="card">
+    <div class="section-title">🤖 Fin</div>
+    <div class="bubble fin">勤務時間・追加残業・支給予定日を詳しく計算できるようになりました。</div>
+    <div id="chat"></div>
+    <textarea id="finInput" placeholder="例：今日は事務所9時〜18時、15分残業！"></textarea>
+    <button id="sendFin" class="primary">送信</button>
+    <div class="muted" style="margin-top:10px">Finの自動解析は後続Sprintで追加します。</div>
+  </div>
+</section>
 
-<section id="settings" class="page"><div class="card"><div class="section-title">設定</div><div class="field"><label>事務所時給</label><input id="officeHourly" type="number" value="1300"></div><div class="field"><label>スリーウェイ当月支給上限</label><input id="threewayCap" type="number" value="90000"></div><button id="saveSettings" class="primary">設定を保存</button><div class="status" style="margin-top:12px"><strong>バージョン</strong><div class="muted">v0.2.1-alpha / Sprint 2-2</div></div></div></section>
+<section id="settings" class="page">
+  <div class="card">
+    <div class="section-title">設定</div>
+    <div class="field"><label>事務所時給</label><input id="officeHourly" type="number" value="1300"></div>
+    <div class="field"><label>スリーウェイ当月支給上限</label><input id="threewayCap" type="number" value="90000"></div>
+    <button id="saveSettings" class="primary">設定を保存</button>
+    <div class="status" style="margin-top:12px"><strong>残業計算</strong><div class="muted">追加残業も通常時給で概算</div></div>
+    <div class="status"><strong>バージョン</strong><div class="muted">v0.3.0-alpha / Sprint 3-1</div></div>
+  </div>
+</section>
 </main>
 
-<nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
+<nav>
+  <button data-page="home" class="active">🏠<br>ホーム</button>
+  <button data-page="calendar">📅<br>カレンダー</button>
+  <button data-page="input">＋<br>入力</button>
+  <button data-page="fin">🤖<br>Fin</button>
+  <button data-page="settings">⚙️<br>設定</button>
+</nav>
 
 <script>
 const DEFAULT={officeHourly:1300,threewayCap:90000,office:[],chat:[]};
 let db=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem('tfm_db')||'{}'));
 function save(){localStorage.setItem('tfm_db',JSON.stringify(db));renderAll()}
-const yen=n=>'¥'+Math.round(Number(n||0)).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
-function hours(a,b){if(!a||!b)return 0;let[ah,am]=a.split(':').map(Number),[bh,bm]=b.split(':').map(Number);return((bh*60+bm)-(ah*60+am))/60}
+const yen=n=>'¥'+Math.round(Number(n||0)).toLocaleString('ja-JP');
+const ym=d=>(d||'').slice(0,7);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+function diffHours(a,b){
+  if(!a||!b)return 0;
+  let[ah,am]=a.split(':').map(Number),[bh,bm]=b.split(':').map(Number);
+  let mins=(bh*60+bm)-(ah*60+am);
+  if(mins<0)mins+=24*60;
+  return mins/60;
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-document.querySelectorAll('nav button').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(btn.dataset.page).classList.add('active');scrollTo(0,0)});
-function officePreview(){const f=new FormData(officeForm),h=hours(f.get('start'),f.get('end'))-(+f.get('breakHours')||0)+(+f.get('overtime')||0);officeCalc.textContent=`実働 ${h.toFixed(2)}時間 ／ 給与 ${yen(h*db.officeHourly)}`}
+function formatDateJP(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(dateStr+'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function paymentDates(dateStr){
+  if(!dateStr)return null;
+  const d=new Date(dateStr+'T00:00:00');
+  const current=new Date(d.getFullYear(),d.getMonth(),25);
+  const next=new Date(d.getFullYear(),d.getMonth()+1,25);
+  const fmt=x=>`${x.getMonth()+1}/${x.getDate()}`;
+  return {current:fmt(current),next:fmt(next)};
+}
+document.querySelectorAll('nav button').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById(btn.dataset.page).classList.add('active');
+  scrollTo(0,0)
+});
+
+function readOfficeForm(){
+  const f=new FormData(officeForm);
+  const span=diffHours(f.get('start'),f.get('end'));
+  const breakHours=+f.get('breakHours')||0;
+  const overtime=+f.get('overtime')||0;
+  const baseHours=Math.max(0,span-breakHours);
+  const totalHours=baseHours+overtime;
+  const amount=Math.round(totalHours*db.officeHourly);
+  return {f,span,breakHours,overtime,baseHours,totalHours,amount};
+}
+function officePreview(){
+  const x=readOfficeForm();
+  previewBaseHours.textContent=`${x.baseHours.toFixed(2)}時間`;
+  previewOvertime.textContent=`${x.overtime.toFixed(2)}時間`;
+  previewTotalHours.textContent=`${x.totalHours.toFixed(2)}時間`;
+  previewPay.textContent=yen(x.amount);
+  const dates=paymentDates(x.f.get('date'));
+  previewPaymentDates.textContent=dates
+    ? `当月25日：スリーウェイ枠 ／ 翌月25日：9万円超過分`
+    : '支給予定日は勤務日を入力すると表示されます';
+}
 officeForm.oninput=officePreview;
-officeForm.onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),h=hours(f.get('start'),f.get('end'))-(+f.get('breakHours')||0)+(+f.get('overtime')||0);if(h<=0){alert('勤務時間を確認してください');return}db.office.unshift({id:uid(),date:f.get('date'),start:f.get('start'),end:f.get('end'),breakHours:+f.get('breakHours')||0,overtime:+f.get('overtime')||0,hours:h,amount:Math.round(h*db.officeHourly),memo:f.get('memo')});e.target.reset();e.target.start.value='09:00';e.target.end.value='18:00';e.target.breakHours.value='1';e.target.overtime.value='0';save();officePreview()}
-function deleteOffice(id){if(confirm('この勤務を削除しますか？')){db.office=db.office.filter(x=>x.id!==id);save()}}
+officeForm.onsubmit=e=>{
+  e.preventDefault();
+  const x=readOfficeForm();
+  if(!x.f.get('date')){alert('勤務日を入力してください');return}
+  if(x.baseHours<=0){alert('開始・終了・休憩時間を確認してください');return}
+  db.office.unshift({
+    id:uid(),date:x.f.get('date'),start:x.f.get('start'),end:x.f.get('end'),
+    breakHours:x.breakHours,overtime:x.overtime,baseHours:x.baseHours,
+    hours:x.totalHours,amount:x.amount,memo:x.f.get('memo')
+  });
+  e.target.reset();
+  e.target.start.value='09:00';e.target.end.value='18:00';
+  e.target.breakHours.value='1';e.target.overtime.value='0';
+  save();officePreview();
+}
+function deleteOffice(id){
+  if(confirm('この勤務を削除しますか？')){
+    db.office=db.office.filter(x=>x.id!==id);save()
+  }
+}
+
 let current=new Date();
-function drawCalendar(){const y=current.getFullYear(),m=current.getMonth(),month=`${y}-${String(m+1).padStart(2,'0')}`;monthLabel.textContent=`${y}年 ${m+1}月`;const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),names=['日','月','火','水','木','金','土'];calendarGrid.innerHTML=names.map(n=>`<div class="dow">${n}</div>`).join('');for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';const today=new Date();for(let d=1;d<=days;d++){const date=`${month}-${String(d).padStart(2,'0')}`,isToday=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate(),work=db.office.some(x=>x.date===date);calendarGrid.innerHTML+=`<div class="day ${isToday?'today':''} ${work?'work':''}">${d}</div>`}}
-prevMonth.onclick=()=>{current=new Date(current.getFullYear(),current.getMonth()-1,1);drawCalendar()};nextMonth.onclick=()=>{current=new Date(current.getFullYear(),current.getMonth()+1,1);drawCalendar()};
-function renderHome(){const month=new Date().toISOString().slice(0,7),items=db.office.filter(x=>ym(x.date)===month),total=items.reduce((s,x)=>s+x.amount,0),threeway=Math.min(db.threewayCap,total),next=Math.max(0,total-db.threewayCap),pct=Math.min(100,total/db.threewayCap*100);workedTotal.textContent=yen(total);officeCount.textContent=`${items.length}回`;officeTotal.textContent=yen(total);threewayHome.textContent=yen(threeway);officeNextHome.textContent=yen(next);threewayAmount.textContent=yen(threeway);officeNextAmount.textContent=yen(next);threewayProgressText.textContent=`${yen(threeway)} / ${yen(db.threewayCap)}`;threewayProgressBar.style.width=`${pct}%`}
-function renderOffice(){officeList.innerHTML=db.office.map(x=>`<div class="list-item"><div class="row"><div><strong>${esc(x.date)} ${esc(x.start)}–${esc(x.end)}</strong><div class="muted">実働 ${x.hours.toFixed(2)}h ${esc(x.memo||'')}</div></div><div style="text-align:right"><div class="amount">${yen(x.amount)}</div><button class="danger" onclick="deleteOffice('${x.id}')">削除</button></div></div></div>`).join('')||'<div class="muted">まだ登録がありません</div>'}
-function renderChat(){chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">受け取りました。今はフォーム入力をご利用ください。</div>`).join('')}
+function drawCalendar(){
+  const y=current.getFullYear(),m=current.getMonth(),month=`${y}-${String(m+1).padStart(2,'0')}`;
+  monthLabel.textContent=`${y}年 ${m+1}月`;
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),names=['日','月','火','水','木','金','土'];
+  calendarGrid.innerHTML=names.map(n=>`<div class="dow">${n}</div>`).join('');
+  for(let i=0;i<first;i++)calendarGrid.innerHTML+='<div></div>';
+  const today=new Date();
+  for(let d=1;d<=days;d++){
+    const date=`${month}-${String(d).padStart(2,'0')}`;
+    const isToday=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
+    const work=db.office.some(x=>x.date===date);
+    calendarGrid.innerHTML+=`<div class="day ${isToday?'today':''} ${work?'work':''}">${d}</div>`;
+  }
+}
+prevMonth.onclick=()=>{current=new Date(current.getFullYear(),current.getMonth()-1,1);drawCalendar()};
+nextMonth.onclick=()=>{current=new Date(current.getFullYear(),current.getMonth()+1,1);drawCalendar()};
+
+function renderHome(){
+  const month=new Date().toISOString().slice(0,7);
+  const items=db.office.filter(x=>ym(x.date)===month);
+  const total=items.reduce((s,x)=>s+(+x.amount||0),0);
+  const totalHours=items.reduce((s,x)=>s+(+x.hours||0),0);
+  const overtimeTotal=items.reduce((s,x)=>s+(+x.overtime||0),0);
+  const threeway=Math.min(db.threewayCap,total);
+  const next=Math.max(0,total-db.threewayCap);
+  const pct=db.threewayCap>0?Math.min(100,total/db.threewayCap*100):0;
+  workedTotal.textContent=yen(total);
+  officeCount.textContent=`${items.length}回`;
+  officeHoursTotal.textContent=`${totalHours.toFixed(2)}時間`;
+  officeOvertimeTotal.textContent=`${overtimeTotal.toFixed(2)}時間`;
+  officeTotal.textContent=yen(total);
+  threewayHome.textContent=yen(threeway);
+  officeNextHome.textContent=yen(next);
+  threewayAmount.textContent=yen(threeway);
+  officeNextAmount.textContent=yen(next);
+  threewayProgressText.textContent=`${yen(threeway)} / ${yen(db.threewayCap)}`;
+  threewayProgressBar.style.width=`${pct}%`;
+}
+function renderOffice(){
+  officeList.innerHTML=db.office.map(x=>{
+    const base=Number.isFinite(+x.baseHours)?+x.baseHours:Math.max(0,(+x.hours||0)-(+x.overtime||0));
+    const dates=paymentDates(x.date);
+    return `<div class="list-item">
+      <div class="row">
+        <div>
+          <strong>${esc(x.date)} ${esc(x.start)}–${esc(x.end)}</strong>
+          ${(+x.overtime||0)>0?'<span class="badge">残業あり</span>':''}
+          <div class="breakdown">
+            所定内 ${base.toFixed(2)}h ／ 追加残業 ${(+x.overtime||0).toFixed(2)}h<br>
+            合計 ${(+x.hours||0).toFixed(2)}h ／ 支給予定 ${dates?dates.current+'・'+dates.next:''}
+            ${x.memo?'<br>'+esc(x.memo):''}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="amount">${yen(x.amount)}</div>
+          <button class="danger" onclick="deleteOffice('${x.id}')">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="muted">まだ登録がありません</div>';
+}
+function renderChat(){
+  chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">受け取りました。今はフォーム入力をご利用ください。</div>`).join('')
+}
 sendFin.onclick=()=>{const v=finInput.value.trim();if(!v)return;db.chat.push(v);finInput.value='';save()};
-officeHourly.value=db.officeHourly;threewayCap.value=db.threewayCap;
-saveSettings.onclick=()=>{db.officeHourly=+officeHourly.value||1300;db.threewayCap=+threewayCap.value||90000;save();officePreview();alert('保存しました')};
+officeHourly.value=db.officeHourly;
+threewayCap.value=db.threewayCap;
+saveSettings.onclick=()=>{
+  db.officeHourly=+officeHourly.value||1300;
+  db.threewayCap=+threewayCap.value||90000;
+  save();officePreview();alert('保存しました')
+};
 function renderAll(){renderHome();renderOffice();renderChat();drawCalendar()}
 officePreview();renderAll();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
