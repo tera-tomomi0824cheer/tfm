@@ -109,6 +109,34 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
   }
 }
 
+
+/* v0.5.3: iPhoneで2列を維持しつつ、縦幅を圧縮 */
+@media (max-width:520px){
+  .formpane .grid.compact-two,
+  #settings .grid.compact-two{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  .formpane .card{padding:12px!important}
+  .formpane .field{margin-bottom:8px!important}
+  .formpane input,
+  .formpane select,
+  .formpane textarea,
+  #settings input,
+  #settings select{
+    min-height:46px!important;
+    height:46px!important;
+    padding:8px 10px!important;
+    border-radius:11px!important;
+    font-size:16px!important;
+  }
+  .formpane textarea{height:58px!important;min-height:58px!important}
+  .formpane .calc{padding:11px!important;margin:9px 0!important;line-height:1.35}
+  .formpane .primary{padding:12px!important;margin-top:4px!important}
+  .tabbar{margin-bottom:10px!important}
+  main{padding-top:12px!important}
+}
+
 </style>
 </head>
 <body>
@@ -140,8 +168,8 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
     <div class="card"><div class="section-title">事務所勤務</div>
       <form id="officeForm">
         <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
-        <div class="grid"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
-        <div class="grid"><div class="field"><label>休憩(h)</label><input name="breakH" type="number" step=".25" value="1"></div><div class="field"><label>残業(h)</label><input name="ot" type="number" step=".25" value="0"></div></div>
+        <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
+        <div class="grid compact-two"><div class="field"><label>休憩(h)</label><input name="breakH" type="number" step=".25" value="1"></div><div class="field"><label>残業(h)</label><input name="ot" type="number" step=".25" value="0"></div></div>
         <div id="officeCalc" class="calc">入力すると計算します</div>
         <button class="primary">登録する</button>
       </form>
@@ -158,10 +186,10 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
         <div class="field"><label>区分</label><select name="type"><option>個人コーチング</option><option>講習会</option><option>大会運営（その他）</option><option>大会運営（審判）</option></select></div>
         <div class="field" id="rankField"><label>審判ランク</label><select name="rank"><option value="">選択</option><option>A</option><option>B</option><option>C</option></select></div>
-        <div class="grid"><div class="field"><label>開始</label><input name="start" type="time"></div><div class="field"><label>終了</label><input name="end" type="time"></div></div>
+        <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time"></div><div class="field"><label>終了</label><input name="end" type="time"></div></div>
         <div class="field"><label>会場</label><input name="venue"></div>
-        <div class="grid"><div class="field"><label>乗車駅・停留所</label><input name="from" value="望地"></div><div class="field"><label>降車駅</label><input name="to"></div></div>
-        <div class="grid"><div class="field"><label>交通費（往復）</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
+        <div class="grid compact-two"><div class="field"><label>乗車駅・停留所</label><input name="from" value="望地"></div><div class="field"><label>降車駅</label><input name="to"></div></div>
+        <div class="grid compact-two"><div class="field"><label>交通費（往復）</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
         <div id="usaCalc" class="calc">入力すると計算します</div><button class="primary">登録する</button>
       </form>
     </div>
@@ -218,13 +246,13 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 </section>
 
 <section id="settings" class="page"><div class="card"><div class="section-title">設定</div>
-<div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
+<div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
-<div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.2-alpha / iPhone入力欄修正</div></div><div class="card">
+<div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.3-alpha / コンパクト2列表示</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
-    <div class="grid"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
+    <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
     <div class="field"><label>往復交通費</label><input name="fare" type="number"></div>
     <button class="primary" type="submit">ルートを保存</button>
   </form>
