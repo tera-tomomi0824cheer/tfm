@@ -53,7 +53,7 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
   <div class="card hero"><div class="eyebrow">Tomo Finance Manager</div><div id="workedTotal" class="big">¥0</div><div class="muted" style="color:#D5F5EF">今月働いた金額・利益</div></div>
   <div class="grid"><div class="card mini"><div class="muted">事務所</div><div id="homeOffice" class="big">¥0</div></div><div class="card mini"><div class="muted">USA</div><div id="homeUsa" class="big">¥0</div></div></div>
   <div class="grid"><div class="card mini"><div class="muted">秦野高校</div><div id="homeHadano" class="big">¥0</div></div><div class="card mini"><div class="muted">FLAPPERS利益</div><div id="homeFlap" class="big">¥0</div></div></div>
-  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount" class="privacy-value">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount" class="privacy-value">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
+  <div class="card"><div class="section-title">事務所の支給内訳</div><div class="row"><span class="muted">当月25日・スリーウェイ</span><strong id="threewayAmount">¥0</strong></div><div class="row" style="margin-top:9px"><span class="muted">翌月25日・坂口事務所</span><strong id="officeNextAmount">¥0</strong></div><div class="progress"><div id="threewayBar"></div></div></div>
   <div id="yearCard" class="card year-card" role="button" tabindex="0" aria-expanded="false">
   <div class="section-title">今年の累計</div>
   <div id="yearMasked" class="year-hidden">••••••</div>
@@ -128,7 +128,7 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 <div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.4.2-alpha / 年間累計タップ表示</div></div></section>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.4.3-alpha / 操作不具合修正</div></div></section>
 </main>
 
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
@@ -190,7 +190,6 @@ yearCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggl
 
 rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();render();
 
-applyPrivacy()};
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
