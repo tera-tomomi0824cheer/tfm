@@ -197,6 +197,16 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .statement-difference.negative{color:#FCA5A5}
 @media(max-width:390px){.statement-grid{grid-template-columns:1fr}}
 
+
+/* v0.9.0 バックアップ */
+.backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.backup-button{border:1px solid var(--line);border-radius:14px;background:#172033;color:white;padding:13px;font-weight:800}
+.backup-button.primary-action{background:var(--teal);border-color:var(--teal)}
+.backup-note{font-size:12px;color:#94A3B8;line-height:1.65;margin-top:10px}
+.file-input-wrap{position:relative;overflow:hidden}
+.file-input-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.danger-zone{border-color:#7F1D1D}
+
 </style>
 </head>
 <body>
@@ -416,7 +426,23 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.8.3-alpha / タップ操作修正</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.9.0-alpha / バックアップ</div></div>
+<div class="card">
+  <div class="section-title">データのバックアップ</div>
+  <div class="backup-actions">
+    <button id="exportBackup" class="backup-button primary-action" type="button">書き出す</button>
+    <label class="backup-button file-input-wrap" style="text-align:center">
+      読み込む
+      <input id="importBackup" type="file" accept="application/json,.json">
+    </label>
+  </div>
+  <div class="backup-note">
+    勤務・USA・秦野・平井・入金・交通費ルート・設定を、1つのJSONファイルに保存します。<br>
+    iPhoneの機種変更やSafariデータ消去に備えて、月1回の保存がおすすめです。
+  </div>
+</div>
+
+<div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid compact-two"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
@@ -657,6 +683,60 @@ closeStatement.onclick=()=>{
   scrollTo(0,0);
 };
 statementMonth.onchange=renderStatement;
+
+
+function buildBackup(){
+  return {
+    app:'TFM',
+    version:'0.9.0',
+    exportedAt:new Date().toISOString(),
+    data:db
+  };
+}
+function downloadTextFile(filename,text){
+  const blob=new Blob([text],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+exportBackup.onclick=()=>{
+  const stamp=new Date().toISOString().slice(0,10);
+  downloadTextFile(`TFM_backup_${stamp}.json`,JSON.stringify(buildBackup(),null,2));
+};
+importBackup.onchange=async e=>{
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    const restored=parsed&&parsed.data?parsed.data:parsed;
+    if(!restored||!restored.settings||!Array.isArray(restored.office)||!Array.isArray(restored.usa)||!Array.isArray(restored.hadano)||!Array.isArray(restored.flap)){
+      throw new Error('TFMのバックアップ形式ではありません');
+    }
+    if(!confirm('現在のデータを、選択したバックアップで置き換えますか？')){e.target.value='';return}
+    db=restored;
+    if(!db.routes)db.routes=[];
+    if(!db.payments)db.payments=[];
+    if(!db.chat)db.chat=[];
+    localStorage.setItem('tfm_db_v4',JSON.stringify(db));
+    render();
+    officeHourly.value=db.settings.officeHourly;
+    otRate.value=db.settings.otRate;
+    threewayCap.value=db.settings.threewayCap;
+    usaSeminar.value=db.settings.usaSeminar;
+    usaCoach.value=db.settings.usaCoach;
+    alert('バックアップを読み込みました');
+  }catch(err){
+    alert(`読み込みに失敗しました：${err.message}`);
+  }finally{
+    e.target.value='';
+  }
+};
 
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
