@@ -53,6 +53,32 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 .secondary{width:100%;border:1px solid var(--line);border-radius:12px;background:#172033;color:#E2E8F0;padding:11px;font-weight:800}
 .route-list{margin-top:10px}
 
+
+/* v0.5.1 mobile layout fixes */
+.grid{min-width:0}
+.grid>*{min-width:0}
+input,select,textarea{min-width:0;max-width:100%;width:100%;box-sizing:border-box}
+.field{min-width:0}
+.card{overflow:hidden}
+.formpane .card{padding:14px}
+.formpane input,.formpane select,.formpane textarea{padding:11px 12px;font-size:16px;border-radius:12px}
+.formpane .field{margin-bottom:10px}
+.formpane .primary{padding:13px}
+.history-box{padding:0}
+.history-box summary{list-style:none;cursor:pointer;padding:15px 16px;font-weight:800}
+.history-box summary::-webkit-details-marker{display:none}
+.history-box summary::after{content:"▼";float:right;color:#5EEAD4;font-size:12px}
+.history-box[open] summary::after{content:"▲"}
+.history-content{padding:0 16px 14px}
+@media (max-width:390px){
+  main{padding-left:10px;padding-right:10px}
+  .card{border-radius:18px}
+  .tabbar{gap:5px}
+  .tabbar button{font-size:11px;padding:9px 2px}
+  .grid{gap:8px}
+  .formpane .card{padding:12px}
+}
+
 </style>
 </head>
 <body>
@@ -89,7 +115,11 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
         <div id="officeCalc" class="calc">入力すると計算します</div>
         <button class="primary">登録する</button>
       </form>
-    </div><div class="card"><div class="section-title">事務所履歴</div><div id="officeList"></div></div>
+    </div>
+    <details class="card history-box">
+      <summary>事務所履歴を見る</summary>
+      <div class="history-content"><div id="officeList"></div></div>
+    </details>
   </div>
 
   <div id="usaPane" class="formpane">
@@ -104,7 +134,11 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
         <div class="grid"><div class="field"><label>交通費（往復）</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
         <div id="usaCalc" class="calc">入力すると計算します</div><button class="primary">登録する</button>
       </form>
-    </div><div class="card"><div class="section-title">USA履歴</div><div id="usaList"></div></div>
+    </div>
+    <details class="card history-box">
+      <summary>USA履歴を見る</summary>
+      <div class="history-content"><div id="usaList"></div></div>
+    </details>
   </div>
 
   <div id="hadanoPane" class="formpane">
@@ -116,7 +150,11 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
         <div class="field"><label>源泉徴収</label><input name="tax" type="number" value="0"></div>
         <div id="hadanoCalc" class="calc">手取り見込み ¥20,000</div><button class="primary">登録する</button>
       </form>
-    </div><div class="card"><div class="section-title">秦野履歴</div><div id="hadanoList"></div></div>
+    </div>
+    <details class="card history-box">
+      <summary>秦野履歴を見る</summary>
+      <div class="history-content"><div id="hadanoList"></div></div>
+    </details>
   </div>
 
   <div id="flapPane" class="formpane">
@@ -129,7 +167,11 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
         <div id="customArea" class="hidden"><div class="field"><label>金額</label><input name="custom" type="number" value="0"></div></div>
         <div id="flapCalc" class="calc">入力すると計算します</div><button class="primary">登録する</button>
       </form>
-    </div><div class="card"><div class="section-title">FLAPPERS履歴</div><div id="flapList"></div></div>
+    </div>
+    <details class="card history-box">
+      <summary>FLAPPERS履歴を見る</summary>
+      <div class="history-content"><div id="flapList"></div></div>
+    </details>
   </div>
 </section>
 
@@ -149,7 +191,7 @@ input,select,textarea{width:100%;background:#101827;border:1px solid var(--line)
 <div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.0-alpha / Fin Lite・交通費マスター</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.1-alpha / スマホ表示最適化</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
