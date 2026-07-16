@@ -79,6 +79,36 @@ input,select,textarea{min-width:0;max-width:100%;width:100%;box-sizing:border-bo
   .formpane .card{padding:12px}
 }
 
+
+/* v0.5.2: iPhone入力欄のはみ出しを確実に防止 */
+.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+.grid>*{min-width:0!important;max-width:100%!important}
+input,select,textarea{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  -webkit-appearance:none;
+  appearance:none;
+}
+input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
+  min-width:0!important;
+  max-width:100%!important;
+}
+@media (max-width:520px){
+  .formpane .grid,
+  #settings .grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:0!important;
+  }
+  .formpane .field,
+  #settings .field{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -191,7 +221,7 @@ input,select,textarea{min-width:0;max-width:100%;width:100%;box-sizing:border-bo
 <div class="grid"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.1-alpha / スマホ表示最適化</div></div><div class="card">
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v0.5.2-alpha / iPhone入力欄修正</div></div><div class="card">
   <div class="section-title">交通費ルートマスター</div>
   <form id="routeForm">
     <div class="grid"><div class="field"><label>乗車</label><input name="from" value="望地"></div><div class="field"><label>降車</label><input name="to"></div></div>
