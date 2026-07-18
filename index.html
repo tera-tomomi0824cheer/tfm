@@ -238,9 +238,22 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .mode-guide{background:#101827;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;font-size:12px;color:#CBD5E1;line-height:1.6}
 .allowance-title{font-size:12px;font-weight:800;color:#CBD5E1;margin:10px 0 7px}
 .ocr-ready{border:1px dashed #475569;border-radius:12px;padding:10px;color:#94A3B8;font-size:11px;line-height:1.6;margin-bottom:10px}
+
+/* v1.4.1 データ表示復旧・USA明細OCR */
+.app-error{display:none;position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#7F1D1D;color:white;border-radius:14px;padding:12px;font-size:12px;line-height:1.55}
+.ocr-card{border:1px solid #475569;background:#101827;border-radius:14px;padding:12px;margin-bottom:12px}
+.ocr-upload{display:block;border:1px dashed #64748B;border-radius:12px;padding:14px;text-align:center;font-weight:800;cursor:pointer}
+.ocr-upload input{position:absolute;opacity:0;pointer-events:none}
+.ocr-preview{width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-top:10px;background:#0B1220}
+.ocr-progress{margin-top:10px;font-size:12px;color:#CBD5E1;line-height:1.55}
+.ocr-result{margin-top:10px}
+.ocr-candidate{border-top:1px solid var(--line);padding:10px 0}
+.ocr-candidate:first-child{border-top:0}
+.ocr-raw{min-height:130px;font-size:12px;line-height:1.5}
+.ocr-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 </style>
 </head>
-<body>
+<body><div id="appError" class="app-error"></div>
 <header><h1>TFM</h1></header>
 <main>
 <section id="home" class="page active">
@@ -370,7 +383,26 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
         <button id="tplShirayuri" class="template-button" type="button">白百合 17–19</button>
         <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
       </div>
-      <form id="usaForm">
+      
+<div class="ocr-card">
+  <div class="section-title">USA支払明細を写真から読み取る</div>
+  <label class="ocr-upload">
+    📷 明細を撮影・写真を選択
+    <input id="usaSlipImage" type="file" accept="image/*" capture="environment">
+  </label>
+  <img id="usaSlipPreview" class="ocr-preview hidden" alt="選択した明細">
+  <div id="usaOcrProgress" class="ocr-progress">画像は端末内でOCR処理し、読み取り候補を確認してから登録します。</div>
+  <div class="ocr-actions">
+    <button id="runUsaOcr" class="secondary" type="button" disabled>文字を読み取る</button>
+    <button id="clearUsaOcr" class="secondary" type="button">クリア</button>
+  </div>
+  <div id="usaOcrResult" class="ocr-result hidden">
+    <div class="field"><label>読み取った文字（修正可能）</label><textarea id="usaOcrRaw" class="ocr-raw"></textarea></div>
+    <button id="parseUsaOcr" class="primary" type="button">登録候補を作成</button>
+    <div id="usaOcrCandidates"></div>
+  </div>
+</div>
+<form id="usaForm">
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
         <div class="field"><label>区分</label><select name="type">
           <option>個人コーチング</option>
@@ -537,7 +569,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.4.0 / USA三方式入力</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.4.1 / データ復旧・USA明細OCR</div></div>
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -566,9 +598,22 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
+window.addEventListener('error',e=>{
+  const box=document.getElementById('appError');
+  if(box){box.style.display='block';box.textContent='画面処理でエラーが発生しました。保存データは削除されていません。再読み込み後も続く場合はバックアップを取ってください。';}
+});
 const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],venues:[{name:'白百合女子大学',type:'個人コーチング',start:'17:00',end:'19:00',from:'望地',to:'仙川'}],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
-let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];if(!db.venues)db.venues=DEF.venues;
+let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.settings)db.settings=structuredClone(DEF.settings);
+if(!Array.isArray(db.office))db.office=[];
+if(!Array.isArray(db.usa))db.usa=[];
+if(!Array.isArray(db.hadano))db.hadano=[];
+if(!Array.isArray(db.flap))db.flap=[];
+if(!Array.isArray(db.routes))db.routes=structuredClone(DEF.routes);
+if(!Array.isArray(db.payments))db.payments=[];
+if(!Array.isArray(db.venues))db.venues=structuredClone(DEF.venues);
+if(!Array.isArray(db.chat))db.chat=[];
 function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render();if(statement.classList.contains('active'))renderStatement()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
@@ -613,6 +658,153 @@ officeForm.onsubmit=e=>{
 }
 
 
+
+
+
+let usaOcrFile=null;
+usaSlipImage.onchange=e=>{
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  usaOcrFile=file;
+  usaSlipPreview.src=URL.createObjectURL(file);
+  usaSlipPreview.classList.remove('hidden');
+  runUsaOcr.disabled=false;
+  usaOcrProgress.textContent='写真を選択しました。「文字を読み取る」を押してください。';
+};
+clearUsaOcr.onclick=()=>{
+  usaOcrFile=null;
+  usaSlipImage.value='';
+  usaSlipPreview.src='';
+  usaSlipPreview.classList.add('hidden');
+  usaOcrResult.classList.add('hidden');
+  usaOcrRaw.value='';
+  usaOcrCandidates.innerHTML='';
+  runUsaOcr.disabled=true;
+  usaOcrProgress.textContent='画像は端末内でOCR処理し、読み取り候補を確認してから登録します。';
+};
+runUsaOcr.onclick=async()=>{
+  if(!usaOcrFile)return;
+  if(!window.Tesseract){
+    usaOcrProgress.textContent='OCRライブラリを読み込めませんでした。通信状態を確認してください。';
+    return;
+  }
+  runUsaOcr.disabled=true;
+  usaOcrProgress.textContent='日本語の文字を読み取っています。初回は1〜2分かかることがあります…';
+  try{
+    const result=await Tesseract.recognize(usaOcrFile,'jpn+eng',{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          usaOcrProgress.textContent=`文字を読み取り中… ${Math.round((m.progress||0)*100)}%`;
+        }
+      }
+    });
+    usaOcrRaw.value=result.data.text||'';
+    usaOcrResult.classList.remove('hidden');
+    usaOcrProgress.textContent='読み取り完了。文字を確認・修正してから候補を作成してください。';
+  }catch(err){
+    usaOcrProgress.textContent=`読み取りに失敗しました：${err.message}`;
+  }finally{
+    runUsaOcr.disabled=false;
+  }
+};
+
+function normalizeOcrNumber(v){
+  if(v===undefined||v===null)return 0;
+  const s=String(v).replace(/[¥￥,\s]/g,'').replace(/[Oo]/g,'0');
+  const n=Number(s);
+  return Number.isFinite(n)?n:0;
+}
+function extractUsaSlipMonth(text){
+  const m=text.match(/(20\d{2})\s*年\s*(\d{1,2})\s*月/);
+  return m?`${m[1]}-${String(+m[2]).padStart(2,'0')}`:new Date().toISOString().slice(0,7);
+}
+function parseUsaSlipText(text){
+  const month=extractUsaSlipMonth(text);
+  const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const rows=[];
+  for(const line of lines){
+    const dateMatch=line.match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+    if(!dateMatch)continue;
+    const nums=(line.match(/\d[\d,]*(?:\.\d+)?/g)||[]).map(normalizeOcrNumber);
+    const decimals=(line.match(/\b(?:0\.\d{1,2}|1\.\d{1,2}|\d+\.\d{1,2})\b/g)||[]).map(Number);
+    const yenNums=nums.filter(n=>n>=500);
+    let unit=yenNums.find(n=>[1350,1800,4500,11000,12000,18000,22000,20000].includes(n))||0;
+    let factor=decimals.find(n=>n>=0.5&&n<=2)||1;
+    let taxable=0;
+    if(unit>=10000) taxable=Math.round(unit*factor);
+    else if(unit>0){
+      const hours=decimals.find(n=>n>=2&&n<=12)||0;
+      taxable=Math.round(unit*hours);
+    }
+    const possibleAmounts=yenNums.filter(n=>n!==unit);
+    if(possibleAmounts.length) taxable=Math.max(taxable,...possibleAmounts.filter(n=>n<50000));
+    const desc=line.replace(/\d{1,2}\s*\/\s*\d{1,2}.*/,'').trim()||'USA業務';
+    rows.push({
+      id:uid(),
+      date:`${month}-${String(+dateMatch[2]).padStart(2,'0')}`,
+      description:desc,
+      unitRate:unit,
+      factor,
+      taxable
+    });
+  }
+  const taxMatch=text.match(/所得税[^\d¥￥]*[¥￥]?\s*([\d,]+)/);
+  const totalMatch=text.match(/差引支給額[^\d¥￥]*[¥￥]?\s*([\d,]+)/);
+  return {month,rows,tax:normalizeOcrNumber(taxMatch&&taxMatch[1]),net:normalizeOcrNumber(totalMatch&&totalMatch[1])};
+}
+function renderUsaOcrCandidates(parsed){
+  if(!parsed.rows.length){
+    usaOcrCandidates.innerHTML='<div class="note" style="margin-top:10px">業務行を自動判定できませんでした。読み取った文字を修正するか、USAの「明細の金額を直接入力」をご利用ください。</div>';
+    return;
+  }
+  usaOcrCandidates.innerHTML=`<div class="note" style="margin-top:10px">${parsed.month.replace('-','年')}月分／候補 ${parsed.rows.length}件／所得税候補 ${yen(parsed.tax)}／差引支給額候補 ${yen(parsed.net)}</div>`+
+    parsed.rows.map((r,i)=>`<div class="ocr-candidate">
+      <div class="grid compact-two">
+        <div class="field"><label>業務日</label><input data-ocr="${i}" data-key="date" type="date" value="${r.date}"></div>
+        <div class="field"><label>課税支給額</label><input data-ocr="${i}" data-key="taxable" type="number" value="${r.taxable}"></div>
+      </div>
+      <div class="field"><label>業務名</label><input data-ocr="${i}" data-key="description" value="${esc(r.description)}"></div>
+      <div class="grid compact-two">
+        <div class="field"><label>単価</label><input data-ocr="${i}" data-key="unitRate" type="number" value="${r.unitRate}"></div>
+        <div class="field"><label>換算率・時間数</label><input data-ocr="${i}" data-key="factor" type="number" step="0.05" value="${r.factor}"></div>
+      </div>
+      <button class="secondary" type="button" onclick="importOcrUsaRow(${i})">この候補をUSAへ登録</button>
+    </div>`).join('');
+  window._usaOcrParsed=parsed;
+  usaOcrCandidates.querySelectorAll('input[data-ocr]').forEach(input=>{
+    input.oninput=()=>{
+      const r=window._usaOcrParsed.rows[+input.dataset.ocr];
+      r[input.dataset.key]=input.dataset.key==='description'||input.dataset.key==='date'?input.value:(+input.value||0);
+    };
+  });
+}
+parseUsaOcr.onclick=()=>renderUsaOcrCandidates(parseUsaSlipText(usaOcrRaw.value));
+function importOcrUsaRow(i){
+  const parsed=window._usaOcrParsed;
+  const r=parsed&&parsed.rows[i];
+  if(!r)return;
+  db.usa.unshift({
+    id:uid(),date:r.date,type:'大会運営（その他）',payMode:'direct',
+    rank:'',start:'',end:'',venue:r.description,hourlyRate:0,
+    unitRate:+r.unitRate||0,factor:+r.factor||0,
+    judgingAllowance:0,movementAllowance:0,mealAllowance:0,otherAllowance:0,
+    allowance:0,from:'',to:'',fare:0,reimbursement:0,
+    taxable:+r.taxable||0,tax:0,gross:+r.taxable||0,net:+r.taxable||0,
+    source:'USA明細OCR'
+  });
+  save();
+  alert('USA勤務として登録しました。交通費・手当・所得税は履歴や明細直接入力で確認してください。');
+}
+
+function validTime(v){
+  return typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
+}
+function safeHours(start,end){
+  if(!validTime(start)||!validTime(end))return null;
+  const h=hours(start,end);
+  if(!Number.isFinite(h)||h<0||h>18)return null;
+  return h;
+}
 
 function setUsaMode(mode){
   usaForm.payMode.value=mode;
@@ -1092,7 +1284,7 @@ statementMonth.onchange=renderStatement;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.4.0',
+    version:'1.4.1',
     exportedAt:new Date().toISOString(),
     data:db
   };
