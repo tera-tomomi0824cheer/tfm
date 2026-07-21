@@ -240,7 +240,6 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .ocr-ready{border:1px dashed #475569;border-radius:12px;padding:10px;color:#94A3B8;font-size:11px;line-height:1.6;margin-bottom:10px}
 
 /* v1.4.1 データ表示復旧・USA明細OCR */
-.app-error{display:none;position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#7F1D1D;color:white;border-radius:14px;padding:12px;font-size:12px;line-height:1.55}
 .ocr-card{border:1px solid #475569;background:#101827;border-radius:14px;padding:12px;margin-bottom:12px}
 .ocr-upload{display:block;border:1px dashed #64748B;border-radius:12px;padding:14px;text-align:center;font-weight:800;cursor:pointer}
 .ocr-upload input{position:absolute;opacity:0;pointer-events:none}
@@ -251,9 +250,30 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .ocr-candidate:first-child{border-top:0}
 .ocr-raw{min-height:130px;font-size:12px;line-height:1.5}
 .ocr-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+/* v1.4.2 OCR表示・画面幅修正 */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+main,.page,.formpane,.card,form,details,.ocr-card{min-width:0;max-width:100%;box-sizing:border-box}
+.ocr-card,.ocr-upload,.ocr-actions,.ocr-result,.ocr-preview{width:100%;max-width:100%;box-sizing:border-box}
+.ocr-result textarea{width:100%;max-width:100%;box-sizing:border-box}
+details.ocr-details{padding:0;overflow:hidden}
+details.ocr-details summary{
+  list-style:none;cursor:pointer;padding:15px 16px;font-weight:800;
+  display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+details.ocr-details summary::-webkit-details-marker{display:none}
+details.ocr-details summary::after{content:"▼";color:#5EEAD4;font-size:12px}
+details.ocr-details[open] summary::after{content:"▲"}
+.ocr-details-content{padding:0 14px 14px;min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:520px){
+  main{width:100%;max-width:100%;margin:0 auto;padding-left:10px;padding-right:10px}
+  .page{width:100%;max-width:100%;margin:0 auto}
+  .ocr-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+
 </style>
 </head>
-<body><div id="appError" class="app-error"></div>
+<body>
 <header><h1>TFM</h1></header>
 <main>
 <section id="home" class="page active">
@@ -384,8 +404,10 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
         <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
       </div>
       
-<div class="ocr-card">
-  <div class="section-title">USA支払明細を写真から読み取る</div>
+<details class="card ocr-details">
+  <summary>📷 支払明細を写真から読み取る</summary>
+  <div class="ocr-details-content">
+  
   <label class="ocr-upload">
     📷 明細を撮影・写真を選択
     <input id="usaSlipImage" type="file" accept="image/*" capture="environment">
@@ -401,7 +423,9 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
     <button id="parseUsaOcr" class="primary" type="button">登録候補を作成</button>
     <div id="usaOcrCandidates"></div>
   </div>
+
 </div>
+</details>
 <form id="usaForm">
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
         <div class="field"><label>区分</label><select name="type">
@@ -569,7 +593,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.4.1 / データ復旧・USA明細OCR</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.4.2 / OCR表示・画面幅修正</div></div>
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -600,10 +624,6 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-window.addEventListener('error',e=>{
-  const box=document.getElementById('appError');
-  if(box){box.style.display='block';box.textContent='画面処理でエラーが発生しました。保存データは削除されていません。再読み込み後も続く場合はバックアップを取ってください。';}
-});
 const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],venues:[{name:'白百合女子大学',type:'個人コーチング',start:'17:00',end:'19:00',from:'望地',to:'仙川'}],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
 let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.settings)db.settings=structuredClone(DEF.settings);
 if(!Array.isArray(db.office))db.office=[];
@@ -1284,7 +1304,7 @@ statementMonth.onchange=renderStatement;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.4.1',
+    version:'1.4.2',
     exportedAt:new Date().toISOString(),
     data:db
   };
