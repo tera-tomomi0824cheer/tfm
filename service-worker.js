@@ -1,4 +1,4 @@
-const CACHE='tfm-v1.2.1';
+const CACHE='tfm-v1.2.2';
 const STATIC=['./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();

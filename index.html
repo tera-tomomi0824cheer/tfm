@@ -245,6 +245,22 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .recovery-restore{background:var(--teal);border:1px solid var(--teal);color:white}
 .recovery-export{background:#172033;border:1px solid var(--line);color:white}
 .recovery-safe{color:#86EFAC}
+
+/* v1.2.2 復旧画面レイアウト修正 */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{margin:0}
+main{width:100%;max-width:860px;margin:0 auto;padding-left:12px;padding-right:12px;padding-bottom:190px;box-sizing:border-box}
+.page,.card,.recovery-card,.recovery-item,form{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+input,select,textarea,button{max-width:100%;box-sizing:border-box}
+.recovery-card{overflow:hidden}
+.recovery-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
+@media(max-width:520px){
+  main{padding-left:10px;padding-right:10px;padding-bottom:210px}
+  .recovery-actions{grid-template-columns:1fr}
+  .recovery-actions button{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -479,7 +495,7 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.1 / データ復旧専用</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.2 / 復旧画面レイアウト修正</div></div>
 
 <div class="card recovery-card">
   <div class="section-title">データ復旧</div>
@@ -1065,7 +1081,7 @@ scanRecovery.onclick=renderRecoveryCandidates;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.2.1',
+    version:'1.2.2',
     exportedAt:new Date().toISOString(),
     data:db
   };
