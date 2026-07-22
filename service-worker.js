@@ -1,5 +1,5 @@
-const CACHE='tfm-v1.2.3';
-const STATIC=['./office-timecard.js','./manifest.json','./icon-192.png','./icon-512.png'];
+const CACHE='tfm-v1.2.4';
+const STATIC=['./usa-slip-input.js','./office-timecard.js','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(STATIC)));

@@ -293,6 +293,39 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
   .timecard-batch-bar{bottom:88px}
 }
 
+
+/* v1.2.4 USA支払明細準拠入力 */
+.usa-slip-box{width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;border-color:#7F1D1D}
+.usa-slip-box summary{
+  list-style:none;cursor:pointer;padding:15px 16px;font-weight:800;
+  display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.usa-slip-box summary::-webkit-details-marker{display:none}
+.usa-slip-box summary::after{content:"▼";font-size:12px;color:#F87171}
+.usa-slip-box[open] summary::after{content:"▲"}
+.usa-slip-content{padding:0 14px 14px;min-width:0;max-width:100%;box-sizing:border-box}
+.usa-slip-guide{
+  background:#101827;border:1px solid var(--line);border-radius:12px;
+  padding:10px;margin-bottom:12px;font-size:12px;color:#CBD5E1;line-height:1.65
+}
+.usa-slip-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.usa-slip-grid .field{min-width:0}
+.usa-slip-calc{
+  background:#2A1717;border:1px solid #991B1B;border-radius:14px;
+  padding:13px;margin:12px 0;font-size:13px;line-height:1.75
+}
+.usa-slip-calc strong{font-size:17px}
+.usa-slip-optional{
+  border:1px solid var(--line);border-radius:12px;padding:0;margin:10px 0;overflow:hidden
+}
+.usa-slip-optional summary{padding:11px 12px;font-size:12px}
+.usa-slip-optional-content{padding:0 12px 12px}
+.usa-slip-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:10px}
+.usa-slip-note{font-size:11px;color:#94A3B8;line-height:1.6;margin-top:8px}
+@media(max-width:520px){
+  .usa-slip-grid,.usa-slip-actions{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -475,7 +508,62 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
         <button id="tplShirayuri" class="template-button" type="button">白百合 17–19</button>
         <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
       </div>
-      <form id="usaForm">
+      
+<details class="card usa-slip-box" open>
+  <summary>🧾 支払明細どおり入力（おすすめ）</summary>
+  <div class="usa-slip-content">
+    <div class="usa-slip-guide">
+      USAの支払明細と同じく、<strong>単価 × 日数 × 時間数・換算率 ＋ 手当</strong>で登録します。
+      大会業務の0.90・1.20なども、そのまま「時間数・換算率」へ入力できます。<br>
+      始業・退勤時刻は給与計算には使わず、必要な場合だけ補足として残せます。
+    </div>
+
+    <form id="usaSlipForm">
+      <div class="field"><label>業務日</label><input name="date" type="date" required></div>
+      <div class="field"><label>適用・業務名</label><input name="description" placeholder="例：Nationals、Re神奈川Ⅱ-2" required></div>
+
+      <div class="usa-slip-grid">
+        <div class="field"><label>単価</label><input name="unitRate" type="number" min="0" step="1" value="11000"></div>
+        <div class="field"><label>日数</label><input name="days" type="number" min="0" step="0.5" value="1"></div>
+        <div class="field"><label>時間数・換算率</label><input name="quantity" type="number" min="0" step="0.05" value="1"></div>
+        <div class="field"><label>課税手当</label><input name="allowance" type="number" min="0" step="1" value="0"></div>
+      </div>
+
+      <div class="usa-slip-actions">
+        <button id="copyUsaSlipCalculated" class="secondary" type="button">計算額を支給額へ反映</button>
+        <button id="clearUsaSlipForm" class="secondary" type="button">入力をクリア</button>
+      </div>
+
+      <div class="field"><label>課税支給額（明細記載額）</label><input name="taxable" type="number" min="0" step="1" value="11000"></div>
+      <div class="usa-slip-note">
+        原則は上の計算額を反映します。明細上の端数・特殊計算がある場合は、ここだけ直接修正できます。
+      </div>
+
+      <div class="usa-slip-grid">
+        <div class="field"><label>非課税交通費</label><input name="fare" type="number" min="0" step="1" value="0"></div>
+        <div class="field"><label>非課税立替精算</label><input name="reimbursement" type="number" min="0" step="1" value="0"></div>
+        <div class="field"><label>所得税</label><input name="tax" type="number" min="0" step="1" value="0"></div>
+        <div class="field"><label>商品代などその他控除</label><input name="deduction" type="number" min="0" step="1" value="0"></div>
+      </div>
+
+      <details class="usa-slip-optional">
+        <summary>勤務時刻・内訳を補足する（任意）</summary>
+        <div class="usa-slip-optional-content">
+          <div class="usa-slip-grid">
+            <div class="field"><label>開始時刻</label><input name="start" type="time"></div>
+            <div class="field"><label>終了時刻</label><input name="end" type="time"></div>
+          </div>
+          <div class="field"><label>手当・業務内訳メモ</label><input name="memo" placeholder="例：審査手当500円、回収・MC"></div>
+        </div>
+      </details>
+
+      <div id="usaSlipPreview" class="usa-slip-calc"></div>
+      <button class="primary" type="submit">明細準拠で登録する</button>
+    </form>
+  </div>
+</details>
+
+<form id="usaForm">
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
         <div class="field"><label>区分</label><select name="type"><option>個人コーチング</option><option>講習会</option><option>大会運営（その他）</option><option>大会運営（審判）</option></select></div>
         <div class="field" id="rankField"><label>審判ランク</label><select name="rank"><option value="">選択</option><option>A</option><option>B</option><option>C</option></select></div>
@@ -577,7 +665,7 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.3 / タイムカード一括登録</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.4 / USA支払明細準拠入力</div></div>
 
 <div class="card recovery-card">
   <div class="section-title">データ復旧</div>
@@ -1163,7 +1251,7 @@ scanRecovery.onclick=renderRecoveryCandidates;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.2.3',
+    version:'1.2.4',
     exportedAt:new Date().toISOString(),
     data:db
   };
@@ -1343,4 +1431,5 @@ rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();ren
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
 <script src="./office-timecard.js?v=1.2.3"></script>
+<script src="./usa-slip-input.js?v=1.2.4"></script>
 </body></html>
