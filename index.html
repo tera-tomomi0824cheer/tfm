@@ -232,45 +232,19 @@ input[type="time"],input[type="date"],input[type="month"],input[type="number"]{
 .duplicate-note{font-size:11px;color:#94A3B8;margin:-3px 0 10px}
 
 
-.stable-note{font-size:11px;color:#94A3B8;margin:-4px 0 10px;line-height:1.55}
-
-/* v1.4.0 USA報酬方式 */
-.mode-guide{background:#101827;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;font-size:12px;color:#CBD5E1;line-height:1.6}
-.allowance-title{font-size:12px;font-weight:800;color:#CBD5E1;margin:10px 0 7px}
-.ocr-ready{border:1px dashed #475569;border-radius:12px;padding:10px;color:#94A3B8;font-size:11px;line-height:1.6;margin-bottom:10px}
-
-/* v1.4.1 データ表示復旧・USA明細OCR */
-.ocr-card{border:1px solid #475569;background:#101827;border-radius:14px;padding:12px;margin-bottom:12px}
-.ocr-upload{display:block;border:1px dashed #64748B;border-radius:12px;padding:14px;text-align:center;font-weight:800;cursor:pointer}
-.ocr-upload input{position:absolute;opacity:0;pointer-events:none}
-.ocr-preview{width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-top:10px;background:#0B1220}
-.ocr-progress{margin-top:10px;font-size:12px;color:#CBD5E1;line-height:1.55}
-.ocr-result{margin-top:10px}
-.ocr-candidate{border-top:1px solid var(--line);padding:10px 0}
-.ocr-candidate:first-child{border-top:0}
-.ocr-raw{min-height:130px;font-size:12px;line-height:1.5}
-.ocr-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-
-/* v1.4.2 OCR表示・画面幅修正 */
-html,body{width:100%;max-width:100%;overflow-x:hidden}
-main,.page,.formpane,.card,form,details,.ocr-card{min-width:0;max-width:100%;box-sizing:border-box}
-.ocr-card,.ocr-upload,.ocr-actions,.ocr-result,.ocr-preview{width:100%;max-width:100%;box-sizing:border-box}
-.ocr-result textarea{width:100%;max-width:100%;box-sizing:border-box}
-details.ocr-details{padding:0;overflow:hidden}
-details.ocr-details summary{
-  list-style:none;cursor:pointer;padding:15px 16px;font-weight:800;
-  display:flex;align-items:center;justify-content:space-between;gap:12px
-}
-details.ocr-details summary::-webkit-details-marker{display:none}
-details.ocr-details summary::after{content:"▼";color:#5EEAD4;font-size:12px}
-details.ocr-details[open] summary::after{content:"▲"}
-.ocr-details-content{padding:0 14px 14px;min-width:0;max-width:100%;box-sizing:border-box}
-@media(max-width:520px){
-  main{width:100%;max-width:100%;margin:0 auto;padding-left:10px;padding-right:10px}
-  .page{width:100%;max-width:100%;margin:0 auto}
-  .ocr-actions{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-}
-
+/* v1.2.1 データ復旧専用 */
+.recovery-card{border:1px solid #0F766E;background:#10231F}
+.recovery-summary{font-size:12px;color:#CBD5E1;line-height:1.65;margin:8px 0 12px}
+.recovery-list{display:grid;gap:10px}
+.recovery-item{background:#101827;border:1px solid var(--line);border-radius:14px;padding:12px}
+.recovery-key{font-size:11px;color:#94A3B8;word-break:break-all}
+.recovery-count{font-size:18px;font-weight:800;margin:4px 0}
+.recovery-breakdown{font-size:11px;color:#CBD5E1;line-height:1.6}
+.recovery-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.recovery-actions button{border-radius:11px;padding:10px;font-weight:800}
+.recovery-restore{background:var(--teal);border:1px solid var(--teal);color:white}
+.recovery-export{background:#172033;border:1px solid var(--line);color:white}
+.recovery-safe{color:#86EFAC}
 </style>
 </head>
 <body>
@@ -403,103 +377,15 @@ details.ocr-details[open] summary::after{content:"▲"}
         <button id="tplShirayuri" class="template-button" type="button">白百合 17–19</button>
         <button id="tplClearUsa" class="template-button" type="button">入力をクリア</button>
       </div>
-      
-<details class="card ocr-details">
-  <summary>📷 支払明細を写真から読み取る</summary>
-  <div class="ocr-details-content">
-  
-  <label class="ocr-upload">
-    📷 明細を撮影・写真を選択
-    <input id="usaSlipImage" type="file" accept="image/*" capture="environment">
-  </label>
-  <img id="usaSlipPreview" class="ocr-preview hidden" alt="選択した明細">
-  <div id="usaOcrProgress" class="ocr-progress">画像は端末内でOCR処理し、読み取り候補を確認してから登録します。</div>
-  <div class="ocr-actions">
-    <button id="runUsaOcr" class="secondary" type="button" disabled>文字を読み取る</button>
-    <button id="clearUsaOcr" class="secondary" type="button">クリア</button>
-  </div>
-  <div id="usaOcrResult" class="ocr-result hidden">
-    <div class="field"><label>読み取った文字（修正可能）</label><textarea id="usaOcrRaw" class="ocr-raw"></textarea></div>
-    <button id="parseUsaOcr" class="primary" type="button">登録候補を作成</button>
-    <div id="usaOcrCandidates"></div>
-  </div>
-
-</div>
-</details>
-<form id="usaForm">
+      <form id="usaForm">
         <div class="field"><label>業務日</label><input name="date" type="date" required></div>
-        <div class="field"><label>区分</label><select name="type">
-          <option>個人コーチング</option>
-          <option>講習会</option>
-          <option>大会運営（その他）</option>
-          <option>大会運営（審判）</option>
-        </select></div>
-
-        <div class="field"><label>報酬方式</label><select name="payMode">
-          <option value="hourly">時間給</option>
-          <option value="daily">日当×換算率</option>
-          <option value="direct">明細の金額を直接入力</option>
-        </select></div>
-
-        <div id="usaTimeFields">
-          <div class="mode-guide">コーチング・講習会向け。開始と終了から時間数を計算します。</div>
-          <div class="grid compact-two">
-            <div class="field"><label>開始</label><input name="start" type="time"></div>
-            <div class="field"><label>終了</label><input name="end" type="time"></div>
-          </div>
-          <div class="field"><label>時給</label><input name="hourlyRate" type="number" min="0"></div>
-        </div>
-
-        <div id="usaDailyFields" class="hidden">
-          <div class="mode-guide">大会運営・審判向け。実際の時刻を入れなくても登録できます。</div>
-          <div class="field" id="rankField"><label>審判ランク</label><select name="rank">
-            <option value="">選択なし</option><option>A</option><option>B</option><option>C</option>
-          </select></div>
-          <div class="grid compact-two">
-            <div class="field"><label>基本日当</label><input name="unitRate" type="number" min="0"></div>
-            <div class="field"><label>日当換算率</label><input name="factor" type="number" min="0" step="0.05" value="1"></div>
-          </div>
-          <div class="grid compact-two">
-            <div class="field"><label>開始（任意）</label><input name="dailyStart" type="time"></div>
-            <div class="field"><label>終了（任意）</label><input name="dailyEnd" type="time"></div>
-          </div>
-        </div>
-
-        <div id="usaDirectFields" class="hidden">
-          <div class="mode-guide">給与明細を見ながら確定額を登録する場合に使います。</div>
-          <div class="grid compact-two">
-            <div class="field"><label>課税支給額</label><input name="directTaxable" type="number" min="0"></div>
-            <div class="field"><label>所得税</label><input name="directTax" type="number" min="0"></div>
-          </div>
-          <div class="ocr-ready">今後、USAの支払明細書を撮影して「単価・換算率・手当・交通費・所得税」をここへ読み込む機能を接続できる構造です。</div>
-        </div>
-
-        <div class="field"><label>会場・業務名</label><input name="venue"></div>
-
-        <div id="usaAllowanceFields">
-          <div class="allowance-title">課税手当</div>
-          <div class="grid compact-two">
-            <div class="field"><label>審査手当</label><input name="judgingAllowance" type="number" min="0" value="0"></div>
-            <div class="field"><label>移動拘束費</label><input name="movementAllowance" type="number" min="0" value="0"></div>
-          </div>
-          <div class="grid compact-two">
-            <div class="field"><label>昼食手当</label><input name="mealAllowance" type="number" min="0" value="0"></div>
-            <div class="field"><label>時間外・その他手当</label><input name="otherAllowance" type="number" min="0" value="0"></div>
-          </div>
-        </div>
-
-        <div class="allowance-title">非課税支給</div>
-        <div class="grid compact-two">
-          <div class="field"><label>乗車駅・停留所</label><input name="from" value="望地"></div>
-          <div class="field"><label>降車駅</label><input name="to"></div>
-        </div>
-        <div class="grid compact-two">
-          <div class="field"><label>非課税交通費</label><input name="fare" type="number" min="0" value="0"></div>
-          <div class="field"><label>非課税立替精算</label><input name="reimbursement" type="number" min="0" value="0"></div>
-        </div>
-
-        <div id="usaCalc" class="calc">入力すると計算します</div>
-        <button class="primary">登録する</button>
+        <div class="field"><label>区分</label><select name="type"><option>個人コーチング</option><option>講習会</option><option>大会運営（その他）</option><option>大会運営（審判）</option></select></div>
+        <div class="field" id="rankField"><label>審判ランク</label><select name="rank"><option value="">選択</option><option>A</option><option>B</option><option>C</option></select></div>
+        <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time"></div><div class="field"><label>終了</label><input name="end" type="time"></div></div>
+        <div class="field"><label>会場</label><input name="venue"></div>
+        <div class="grid compact-two"><div class="field"><label>乗車駅・停留所</label><input name="from" value="望地"></div><div class="field"><label>降車駅</label><input name="to"></div></div>
+        <div class="grid compact-two"><div class="field"><label>交通費（往復）</label><input name="fare" type="number" value="0"></div><div class="field"><label>各種手当</label><input name="allowance" type="number" value="0"></div></div>
+        <div id="usaCalc" class="calc">入力すると計算します</div><button class="primary">登録する</button>
       </form>
     </div>
     <details class="card history-box">
@@ -593,7 +479,18 @@ details.ocr-details[open] summary::after{content:"▲"}
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.4.2 / OCR表示・画面幅修正</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.1 / データ復旧専用</div></div>
+
+<div class="card recovery-card">
+  <div class="section-title">データ復旧</div>
+  <div class="recovery-summary">
+    端末内に残っているTFMの保存候補を探します。自動では上書きしません。<br>
+    件数を確認し、「先に保存」でJSONを残してから復旧できます。
+  </div>
+  <button id="scanRecovery" class="primary" type="button">端末内のデータを探す</button>
+  <div id="recoveryResult" class="recovery-list" style="margin-top:12px"></div>
+</div>
+
 <div class="card">
   <div class="section-title">データのバックアップ</div>
   <div class="backup-actions">
@@ -622,18 +519,9 @@ details.ocr-details[open] summary::after{content:"▲"}
 
 <nav><button data-page="home" class="active">🏠<br>ホーム</button><button data-page="calendar">📅<br>カレンダー</button><button data-page="input">＋<br>入力</button><button data-page="fin">🤖<br>Fin</button><button data-page="settings">⚙️<br>設定</button></nav>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 const DEF={settings:{officeHourly:1300,otRate:1.25,threewayCap:90000,usaSeminar:1800,usaCoach:4500,usaEvent:11000,usaTax:.1021},office:[],usa:[],hadano:[],flap:[],payments:[],chat:[],venues:[{name:'白百合女子大学',type:'個人コーチング',start:'17:00',end:'19:00',from:'望地',to:'仙川'}],routes:[{from:'望地',to:'仙川',fare:0},{from:'望地',to:'新横浜',fare:0}]};
-let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.settings)db.settings=structuredClone(DEF.settings);
-if(!Array.isArray(db.office))db.office=[];
-if(!Array.isArray(db.usa))db.usa=[];
-if(!Array.isArray(db.hadano))db.hadano=[];
-if(!Array.isArray(db.flap))db.flap=[];
-if(!Array.isArray(db.routes))db.routes=structuredClone(DEF.routes);
-if(!Array.isArray(db.payments))db.payments=[];
-if(!Array.isArray(db.venues))db.venues=structuredClone(DEF.venues);
-if(!Array.isArray(db.chat))db.chat=[];
+let db=JSON.parse(localStorage.getItem('tfm_db_v4')||'null')||DEF;if(!db.routes)db.routes=DEF.routes;if(!db.payments)db.payments=[];if(!db.venues)db.venues=DEF.venues;
 function save(){localStorage.setItem('tfm_db_v4',JSON.stringify(db));render();if(statement.classList.contains('active'))renderStatement()}
 const yen=n=>'¥'+Math.round(+n||0).toLocaleString('ja-JP'),ym=d=>(d||'').slice(0,7),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 function hours(a,b){if(!a||!b)return 0;let[x,y]=a.split(':').map(Number),[p,q]=b.split(':').map(Number),m=(p*60+q)-(x*60+y);if(m<0)m+=1440;return m/60}
@@ -678,318 +566,65 @@ officeForm.onsubmit=e=>{
 }
 
 
-
-
-
-let usaOcrFile=null;
-usaSlipImage.onchange=e=>{
-  const file=e.target.files&&e.target.files[0];
-  if(!file)return;
-  usaOcrFile=file;
-  usaSlipPreview.src=URL.createObjectURL(file);
-  usaSlipPreview.classList.remove('hidden');
-  runUsaOcr.disabled=false;
-  usaOcrProgress.textContent='写真を選択しました。「文字を読み取る」を押してください。';
-};
-clearUsaOcr.onclick=()=>{
-  usaOcrFile=null;
-  usaSlipImage.value='';
-  usaSlipPreview.src='';
-  usaSlipPreview.classList.add('hidden');
-  usaOcrResult.classList.add('hidden');
-  usaOcrRaw.value='';
-  usaOcrCandidates.innerHTML='';
-  runUsaOcr.disabled=true;
-  usaOcrProgress.textContent='画像は端末内でOCR処理し、読み取り候補を確認してから登録します。';
-};
-runUsaOcr.onclick=async()=>{
-  if(!usaOcrFile)return;
-  if(!window.Tesseract){
-    usaOcrProgress.textContent='OCRライブラリを読み込めませんでした。通信状態を確認してください。';
-    return;
-  }
-  runUsaOcr.disabled=true;
-  usaOcrProgress.textContent='日本語の文字を読み取っています。初回は1〜2分かかることがあります…';
-  try{
-    const result=await Tesseract.recognize(usaOcrFile,'jpn+eng',{
-      logger:m=>{
-        if(m.status==='recognizing text'){
-          usaOcrProgress.textContent=`文字を読み取り中… ${Math.round((m.progress||0)*100)}%`;
-        }
-      }
-    });
-    usaOcrRaw.value=result.data.text||'';
-    usaOcrResult.classList.remove('hidden');
-    usaOcrProgress.textContent='読み取り完了。文字を確認・修正してから候補を作成してください。';
-  }catch(err){
-    usaOcrProgress.textContent=`読み取りに失敗しました：${err.message}`;
-  }finally{
-    runUsaOcr.disabled=false;
-  }
-};
-
-function normalizeOcrNumber(v){
-  if(v===undefined||v===null)return 0;
-  const s=String(v).replace(/[¥￥,\s]/g,'').replace(/[Oo]/g,'0');
-  const n=Number(s);
-  return Number.isFinite(n)?n:0;
-}
-function extractUsaSlipMonth(text){
-  const m=text.match(/(20\d{2})\s*年\s*(\d{1,2})\s*月/);
-  return m?`${m[1]}-${String(+m[2]).padStart(2,'0')}`:new Date().toISOString().slice(0,7);
-}
-function parseUsaSlipText(text){
-  const month=extractUsaSlipMonth(text);
-  const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  const rows=[];
-  for(const line of lines){
-    const dateMatch=line.match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
-    if(!dateMatch)continue;
-    const nums=(line.match(/\d[\d,]*(?:\.\d+)?/g)||[]).map(normalizeOcrNumber);
-    const decimals=(line.match(/\b(?:0\.\d{1,2}|1\.\d{1,2}|\d+\.\d{1,2})\b/g)||[]).map(Number);
-    const yenNums=nums.filter(n=>n>=500);
-    let unit=yenNums.find(n=>[1350,1800,4500,11000,12000,18000,22000,20000].includes(n))||0;
-    let factor=decimals.find(n=>n>=0.5&&n<=2)||1;
-    let taxable=0;
-    if(unit>=10000) taxable=Math.round(unit*factor);
-    else if(unit>0){
-      const hours=decimals.find(n=>n>=2&&n<=12)||0;
-      taxable=Math.round(unit*hours);
-    }
-    const possibleAmounts=yenNums.filter(n=>n!==unit);
-    if(possibleAmounts.length) taxable=Math.max(taxable,...possibleAmounts.filter(n=>n<50000));
-    const desc=line.replace(/\d{1,2}\s*\/\s*\d{1,2}.*/,'').trim()||'USA業務';
-    rows.push({
-      id:uid(),
-      date:`${month}-${String(+dateMatch[2]).padStart(2,'0')}`,
-      description:desc,
-      unitRate:unit,
-      factor,
-      taxable
-    });
-  }
-  const taxMatch=text.match(/所得税[^\d¥￥]*[¥￥]?\s*([\d,]+)/);
-  const totalMatch=text.match(/差引支給額[^\d¥￥]*[¥￥]?\s*([\d,]+)/);
-  return {month,rows,tax:normalizeOcrNumber(taxMatch&&taxMatch[1]),net:normalizeOcrNumber(totalMatch&&totalMatch[1])};
-}
-function renderUsaOcrCandidates(parsed){
-  if(!parsed.rows.length){
-    usaOcrCandidates.innerHTML='<div class="note" style="margin-top:10px">業務行を自動判定できませんでした。読み取った文字を修正するか、USAの「明細の金額を直接入力」をご利用ください。</div>';
-    return;
-  }
-  usaOcrCandidates.innerHTML=`<div class="note" style="margin-top:10px">${parsed.month.replace('-','年')}月分／候補 ${parsed.rows.length}件／所得税候補 ${yen(parsed.tax)}／差引支給額候補 ${yen(parsed.net)}</div>`+
-    parsed.rows.map((r,i)=>`<div class="ocr-candidate">
-      <div class="grid compact-two">
-        <div class="field"><label>業務日</label><input data-ocr="${i}" data-key="date" type="date" value="${r.date}"></div>
-        <div class="field"><label>課税支給額</label><input data-ocr="${i}" data-key="taxable" type="number" value="${r.taxable}"></div>
-      </div>
-      <div class="field"><label>業務名</label><input data-ocr="${i}" data-key="description" value="${esc(r.description)}"></div>
-      <div class="grid compact-two">
-        <div class="field"><label>単価</label><input data-ocr="${i}" data-key="unitRate" type="number" value="${r.unitRate}"></div>
-        <div class="field"><label>換算率・時間数</label><input data-ocr="${i}" data-key="factor" type="number" step="0.05" value="${r.factor}"></div>
-      </div>
-      <button class="secondary" type="button" onclick="importOcrUsaRow(${i})">この候補をUSAへ登録</button>
-    </div>`).join('');
-  window._usaOcrParsed=parsed;
-  usaOcrCandidates.querySelectorAll('input[data-ocr]').forEach(input=>{
-    input.oninput=()=>{
-      const r=window._usaOcrParsed.rows[+input.dataset.ocr];
-      r[input.dataset.key]=input.dataset.key==='description'||input.dataset.key==='date'?input.value:(+input.value||0);
-    };
-  });
-}
-parseUsaOcr.onclick=()=>renderUsaOcrCandidates(parseUsaSlipText(usaOcrRaw.value));
-function importOcrUsaRow(i){
-  const parsed=window._usaOcrParsed;
-  const r=parsed&&parsed.rows[i];
-  if(!r)return;
-  db.usa.unshift({
-    id:uid(),date:r.date,type:'大会運営（その他）',payMode:'direct',
-    rank:'',start:'',end:'',venue:r.description,hourlyRate:0,
-    unitRate:+r.unitRate||0,factor:+r.factor||0,
-    judgingAllowance:0,movementAllowance:0,mealAllowance:0,otherAllowance:0,
-    allowance:0,from:'',to:'',fare:0,reimbursement:0,
-    taxable:+r.taxable||0,tax:0,gross:+r.taxable||0,net:+r.taxable||0,
-    source:'USA明細OCR'
-  });
-  save();
-  alert('USA勤務として登録しました。交通費・手当・所得税は履歴や明細直接入力で確認してください。');
-}
-
-function validTime(v){
-  return typeof v==='string'&&/^\d{2}:\d{2}$/.test(v);
-}
-function safeHours(start,end){
-  if(!validTime(start)||!validTime(end))return null;
-  const h=hours(start,end);
-  if(!Number.isFinite(h)||h<0||h>18)return null;
-  return h;
-}
-
-function setUsaMode(mode){
-  usaForm.payMode.value=mode;
-  usaTimeFields.classList.toggle('hidden',mode!=='hourly');
-  usaDailyFields.classList.toggle('hidden',mode!=='daily');
-  usaDirectFields.classList.toggle('hidden',mode!=='direct');
-  usaAllowanceFields.classList.toggle('hidden',mode==='direct');
-  rankField.classList.toggle('hidden',!(mode==='daily'&&usaForm.type.value==='大会運営（審判）'));
-  usaPreview();
-}
-function defaultUsaModeForType(){
-  const t=usaForm.type.value;
-  const mode=(t==='個人コーチング'||t==='講習会')?'hourly':'daily';
-  setUsaMode(mode);
-  if(mode==='hourly'){
-    usaForm.hourlyRate.value=t==='個人コーチング'?db.settings.usaCoach:db.settings.usaSeminar;
-  }else{
-    if(t==='大会運営（その他）')usaForm.unitRate.value=db.settings.usaEvent;
-    if(t==='大会運営（審判）'&&usaForm.rank.value){
-      usaForm.unitRate.value=({A:22000,B:20000,C:18000}[usaForm.rank.value]||0);
-    }
-    if(!usaForm.factor.value)usaForm.factor.value=1;
-  }
-  usaPreview();
-}
 function applyUsaTemplate(name){
   const t=db.venues.find(x=>x.name===name);
   if(!t)return;
-  if(!usaForm.date.value)usaForm.date.value=todayISO();
   usaForm.type.value=t.type;
   usaForm.venue.value=t.name;
   usaForm.start.value=t.start;
   usaForm.end.value=t.end;
   usaForm.from.value=t.from;
   usaForm.to.value=t.to;
-  usaForm.hourlyRate.value=db.settings.usaCoach;
-  usaForm.judgingAllowance.value=0;
-  usaForm.movementAllowance.value=0;
-  usaForm.mealAllowance.value=0;
-  usaForm.otherAllowance.value=0;
-  usaForm.reimbursement.value=0;
-  setUsaMode('hourly');
+  rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');
   autofillFare();
+  usaPreview();
 }
 tplShirayuri.onclick=()=>applyUsaTemplate('白百合女子大学');
 tplClearUsa.onclick=()=>{
   usaForm.reset();
   usaForm.from.value='望地';
-  usaForm.factor.value=1;
-  usaForm.fare.value=0;
-  usaForm.reimbursement.value=0;
-  usaForm.judgingAllowance.value=0;
-  usaForm.movementAllowance.value=0;
-  usaForm.mealAllowance.value=0;
-  usaForm.otherAllowance.value=0;
-  usaForm.hourlyRate.value=db.settings.usaCoach;
-  setUsaMode('hourly');
+  rankField.classList.add('hidden');
+  usaPreview();
 };
-function usaAllowances(f){
-  return (+f.get('judgingAllowance')||0)+(+f.get('movementAllowance')||0)+(+f.get('mealAllowance')||0)+(+f.get('otherAllowance')||0);
-}
-function usaValues(form){
-  const f=new FormData(form);
-  const mode=f.get('payMode');
-  const fare=+f.get('fare')||0;
-  const reimbursement=+f.get('reimbursement')||0;
-  let base=0,allowances=0,taxable=0,tax=0,timeCount=null;
 
-  if(mode==='hourly'){
-    timeCount=safeHours(f.get('start'),f.get('end'));
-    if(timeCount!==null)base=timeCount*(+f.get('hourlyRate')||0);
-    allowances=usaAllowances(f);
-    taxable=base+allowances;
-    tax=Math.floor(taxable*db.settings.usaTax);
-  }else if(mode==='daily'){
-    base=(+f.get('unitRate')||0)*(+f.get('factor')||0);
-    allowances=usaAllowances(f);
-    taxable=base+allowances;
-    tax=Math.floor(taxable*db.settings.usaTax);
-  }else{
-    taxable=+f.get('directTaxable')||0;
-    base=taxable;
-    tax=+f.get('directTax')||0;
-  }
-
-  const gross=Math.round(taxable+fare+reimbursement);
-  const net=Math.round(gross-tax);
-  return {f,mode,base,allowances,taxable,fare,reimbursement,tax,gross,net,timeCount};
-}
-function usaPreview(){
-  const x=usaValues(usaForm);
-  if(x.mode==='hourly'&&x.timeCount===null){
-    usaCalc.textContent='開始・終了を入力すると計算します';
-    return;
-  }
-  if(x.mode==='daily'&&(+x.f.get('unitRate')||0)<=0){
-    usaCalc.textContent='基本日当と換算率を入力すると計算します';
-    return;
-  }
-  if(x.mode==='direct'&&x.taxable<=0){
-    usaCalc.textContent='明細の課税支給額を入力すると計算します';
-    return;
-  }
-  const modeText=x.mode==='hourly'
-    ?`${x.timeCount.toFixed(2)}時間 × ${yen(+x.f.get('hourlyRate')||0)}`
-    :x.mode==='daily'
-      ?`${yen(+x.f.get('unitRate')||0)} × ${(+x.f.get('factor')||0).toFixed(2)}`
-      :'明細確定額';
-  usaCalc.innerHTML=`${modeText}<br>課税 ${yen(x.taxable)} ／ 非課税 ${yen(x.fare+x.reimbursement)} ／ 所得税 ${yen(x.tax)} ／ <strong>手取り ${yen(x.net)}</strong>`;
-}
+function usaPreview(){let f=new FormData(usaForm),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=base+fare+al,tax=Math.floor((base+al)*db.settings.usaTax);usaCalc.textContent=`基本 ${yen(base)} ／ 支給 ${yen(g)} ／ 源泉概算 ${yen(tax)} ／ 手取り ${yen(g-tax)}`}
 function autofillFare(){
   const from=(usaForm.from.value||'').trim(),to=(usaForm.to.value||'').trim();
   const r=db.routes.find(x=>x.from===from&&x.to===to);
   if(r&&r.fare)usaForm.fare.value=r.fare;
   usaPreview();
 }
-usaForm.oninput=usaPreview;
-usaForm.from.onchange=autofillFare;
-usaForm.to.onchange=autofillFare;
-usaForm.payMode.onchange=()=>setUsaMode(usaForm.payMode.value);
-usaForm.type.onchange=defaultUsaModeForType;
-usaForm.rank.onchange=()=>{
-  if(usaForm.rank.value)usaForm.unitRate.value=({A:22000,B:20000,C:18000}[usaForm.rank.value]||0);
-  usaPreview();
-};
-usaForm.onsubmit=e=>{
-  e.preventDefault();
-  const x=usaValues(e.target);
-  const f=x.f;
-  if(!f.get('date')){alert('業務日を入力してください');return}
-  if(x.mode==='hourly'&&x.timeCount===null){alert('開始・終了時間を入力してください');return}
-  if(x.mode==='daily'&&(+f.get('unitRate')||0)<=0){alert('基本日当を入力してください');return}
-  if(x.mode==='direct'&&x.taxable<=0){alert('明細の課税支給額を入力してください');return}
+usaForm.oninput=usaPreview;usaForm.from.onchange=autofillFare;usaForm.to.onchange=autofillFare;usaForm.type.onchange=()=>{rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');usaPreview()};usaForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),t=f.get('type'),h=hours(f.get('start'),f.get('end')),base=t==='個人コーチング'?h*db.settings.usaCoach:t==='講習会'?h*db.settings.usaSeminar:t==='大会運営（その他）'?db.settings.usaEvent:({A:22000,B:20000,C:18000}[f.get('rank')]||0),fare=+f.get('fare')||0,al=+f.get('allowance')||0,g=Math.round(base+fare+al),tax=Math.floor((base+al)*db.settings.usaTax);db.usa.unshift({id:uid(),date:f.get('date'),type:t,rank:f.get('rank'),start:f.get('start'),end:f.get('end'),venue:f.get('venue'),from:f.get('from'),to:f.get('to'),fare,allowance:al,gross:g,net:g-tax});if(f.get('from')&&f.get('to')&&fare&&!db.routes.some(x=>x.from===f.get('from')&&x.to===f.get('to')))db.routes.push({from:f.get('from'),to:f.get('to'),fare});e.target.reset();e.target.from.value='望地';save();usaPreview()}
 
-  const start=x.mode==='daily'?f.get('dailyStart'):f.get('start');
-  const finish=x.mode==='daily'?f.get('dailyEnd'):f.get('end');
+hadanoForm.oninput=()=>{let f=new FormData(hadanoForm);hadanoCalc.textContent=`手取り見込み ${yen((+f.get('regular')||0)+(+f.get('extra')||0)-(+f.get('tax')||0))}`};
+hadanoForm.onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),reg=+f.get('regular')||0,extra=+f.get('extra')||0,tax=+f.get('tax')||0;db.hadano.unshift({id:uid(),month:f.get('month'),reg,extra,tax,net:reg+extra-tax});e.target.reset();e.target.regular.value=20000;e.target.extra.value=0;e.target.tax.value=0;save()};
 
-  db.usa.unshift({
-    id:uid(),date:f.get('date'),type:f.get('type'),payMode:x.mode,
-    rank:f.get('rank'),start,end:finish,venue:f.get('venue'),
-    hourlyRate:+f.get('hourlyRate')||0,
-    unitRate:+f.get('unitRate')||0,
-    factor:+f.get('factor')||0,
-    judgingAllowance:+f.get('judgingAllowance')||0,
-    movementAllowance:+f.get('movementAllowance')||0,
-    mealAllowance:+f.get('mealAllowance')||0,
-    otherAllowance:+f.get('otherAllowance')||0,
-    allowance:x.allowances,
-    from:f.get('from'),to:f.get('to'),fare:x.fare,
-    reimbursement:x.reimbursement,taxable:x.taxable,tax:x.tax,
-    gross:x.gross,net:x.net
-  });
+const PRODUCTS={'Tシャツ':[3000,2000],'スカッツ':[5000,3000],'リボン':[1500,500],'ポンポン':[2500,1518]};
 
-  if(f.get('from')&&f.get('to')&&x.fare&&!db.routes.some(r=>r.from===f.get('from')&&r.to===f.get('to'))){
-    db.routes.push({from:f.get('from'),to:f.get('to'),fare:x.fare});
+function flapValues(){
+  let f=new FormData(flapForm),t=f.get('type'),sale=0,cost=0,detail='';
+  if(t==='月謝'){
+    sale=(+f.get('people')||0)*6000;
+    cost=sale*.4;
+    detail=`${f.get('people')}人`;
+  }else if(t==='入会金'){
+    sale=(+f.get('people')||0)*5000;
+    detail=`${f.get('people')}人`;
+  }else if(t==='年会費'){
+    sale=(+f.get('people')||0)*3000;
+    detail=`${f.get('people')}人`;
+  }else if(t==='物販'){
+    let p=PRODUCTS[f.get('product')],q=+f.get('qty')||0;
+    sale=p[0]*q;
+    cost=0;
+    detail=`${f.get('product')}×${q}`;
+  }else if(t==='その他経費'){
+    cost=+f.get('custom')||0;
+  }else{
+    sale=+f.get('custom')||0;
   }
-
-  e.target.reset();
-  e.target.from.value='望地';
-  e.target.factor.value=1;
-  e.target.hourlyRate.value=db.settings.usaCoach;
-  setUsaMode('hourly');
-  save();
+  return{f,t,sale,cost,profit:sale-cost,detail};
 }
-
 function flapPreview(){let x=flapValues();flapCalc.textContent=`収入 ${yen(x.sale)} ／ 支出 ${yen(x.cost)} ／ 手元増加 ${yen(x.profit)}`}
 flapForm.oninput=flapPreview;flapForm.type.onchange=()=>{let t=flapForm.type.value;peopleArea.classList.toggle('hidden',!['月謝','入会金','年会費'].includes(t));productArea.classList.toggle('hidden',t!=='物販');customArea.classList.toggle('hidden',!['イベント収入','その他経費'].includes(t));flapPreview()};flapForm.onsubmit=e=>{e.preventDefault();let x=flapValues();db.flap.unshift({id:uid(),date:x.f.get('date'),type:x.t,sale:x.sale,cost:x.cost,profit:x.profit,detail:x.detail});e.target.reset();save();flapPreview()}
 
@@ -1029,22 +664,11 @@ duplicateUsa.onclick=()=>{
   usaForm.from.value=x.from||'望地';
   usaForm.to.value=x.to||'';
   usaForm.fare.value=+x.fare||0;
-  usaForm.reimbursement.value=0;
-  usaForm.rank.value=x.rank||'';
-  usaForm.start.value=x.start||'';
-  usaForm.end.value=x.end||'';
-  usaForm.dailyStart.value=x.start||'';
-  usaForm.dailyEnd.value=x.end||'';
-  usaForm.hourlyRate.value=+x.hourlyRate||(x.type==='講習会'?db.settings.usaSeminar:db.settings.usaCoach);
-  usaForm.unitRate.value=+x.unitRate||(x.type==='大会運営（審判）'?({A:22000,B:20000,C:18000}[x.rank]||0):db.settings.usaEvent);
-  usaForm.factor.value=+x.factor||1;
-  usaForm.judgingAllowance.value=+x.judgingAllowance||0;
-  usaForm.movementAllowance.value=+x.movementAllowance||0;
-  usaForm.mealAllowance.value=+x.mealAllowance||0;
-  usaForm.otherAllowance.value=+x.otherAllowance||(+x.allowance||0);
-  usaForm.directTaxable.value=+x.taxable||0;
-  usaForm.directTax.value=+x.tax||0;
-  setUsaMode(x.payMode||((x.type==='個人コーチング'||x.type==='講習会')?'hourly':'daily'));
+  usaForm.allowance.value=+x.allowance||0;
+  if(x.start)usaForm.start.value=x.start;
+  if(x.end)usaForm.end.value=x.end;
+  if(x.rank)usaForm.rank.value=x.rank;
+  rankField.classList.toggle('hidden',usaForm.type.value!=='大会運営（審判）');
   usaPreview();
   usaForm.scrollIntoView({behavior:'smooth',block:'start'});
 };
@@ -1188,7 +812,7 @@ sendFin.onclick=()=>{
     const gross=Math.round(base+fare);
     const tax=Math.floor(base*db.settings.usaTax);
     finResult.innerHTML=`<div class="confirm-card"><div class="confirm-title">白百合女子大学のコーチングとして登録しますか？</div><div class="confirm-grid"><div class="confirm-item"><div class="confirm-label">日付</div><div class="confirm-value">${date}</div></div><div class="confirm-item"><div class="confirm-label">時間</div><div class="confirm-value">${start}–${end}</div></div><div class="confirm-item"><div class="confirm-label">交通費</div><div class="confirm-value">${yen(fare)}</div></div><div class="confirm-item"><div class="confirm-label">手取り見込み</div><div class="confirm-value">${yen(gross-tax)}</div></div></div><div class="inline-actions"><button class="primary" id="finConfirmUsa" type="button">登録する</button><button class="secondary" id="finCancelUsa" type="button">取り消す</button></div></div>`;
-    finConfirmUsa.onclick=()=>{db.usa.unshift({id:uid(),date,type:'個人コーチング',payMode:'hourly',rank:'',start,end,venue:t.name,hourlyRate:db.settings.usaCoach,unitRate:0,factor:0,judgingAllowance:0,movementAllowance:0,mealAllowance:0,otherAllowance:0,from:t.from,to:t.to,fare,reimbursement:0,taxable:base,tax,gross,net:gross-tax});db.chat.push(v);finInput.value='';finResult.innerHTML='';save();alert('白百合のコーチングを登録しました')};
+    finConfirmUsa.onclick=()=>{db.usa.unshift({id:uid(),date,type:'個人コーチング',rank:'',start,end,venue:t.name,from:t.from,to:t.to,fare,allowance:0,gross,net:gross-tax});db.chat.push(v);finInput.value='';finResult.innerHTML='';save();alert('白百合のコーチングを登録しました')};
     finCancelUsa.onclick=()=>{finResult.innerHTML=''};
     return;
   }
@@ -1280,7 +904,7 @@ function renderStatement(){
   stFlapCost.textContent=yen(flapCost);
   stFlapProfit.textContent=yen(flapProfit);
 
-  stPaymentRows.innerHTML=sortNewest(payments,'date').map(x=>`<div class="statement-row"><div><div class="statement-source">${esc(x.source)}</div><div class="statement-sub">${esc(x.date)}／${esc(x.account)} ${esc(x.memo||'')}</div></div><strong>${yen(x.amount)}</strong></div>`).join('')||'<div class="muted">入金登録なし</div>';
+  stPaymentRows.innerHTML=payments.map(x=>`<div class="statement-row"><div><div class="statement-source">${esc(x.source)}</div><div class="statement-sub">${esc(x.date)}／${esc(x.account)} ${esc(x.memo||'')}</div></div><strong>${yen(x.amount)}</strong></div>`).join('')||'<div class="muted">入金登録なし</div>';
 }
 if(openStatement){
   openStatement.onclick=()=>{
@@ -1301,10 +925,147 @@ closeStatement.onclick=()=>{
 statementMonth.onchange=renderStatement;
 
 
+
+const RECOVERY_DB_KEY='tfm_db_v4';
+
+function safeParseJson(raw){
+  if(!raw)return null;
+  try{
+    const value=JSON.parse(raw);
+    return value&&typeof value==='object'?value:null;
+  }catch(_e){
+    return null;
+  }
+}
+function normalizeRecoveryDb(value){
+  const x=value&&typeof value==='object'?value:{};
+  for(const key of ['office','usa','hadano','flap','payments','chat','routes','venues']){
+    if(!Array.isArray(x[key]))x[key]=[];
+  }
+  if(!x.settings)x.settings={...DEF.settings};
+  return x;
+}
+function recoveryBreakdown(x){
+  return {
+    office:x.office.length,
+    usa:x.usa.length,
+    hadano:x.hadano.length,
+    flap:x.flap.length,
+    payments:x.payments.length
+  };
+}
+function recoveryCount(x){
+  const b=recoveryBreakdown(x);
+  return b.office+b.usa+b.hadano+b.flap+b.payments;
+}
+function findRecoveryCandidates(){
+  const candidates=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key)continue;
+    const parsed=safeParseJson(localStorage.getItem(key));
+    if(!parsed)continue;
+
+    const source=parsed.data&&parsed.data.settings?parsed.data:parsed;
+    const looksLikeTfm=
+      key.toLowerCase().includes('tfm') ||
+      ['office','usa','hadano','flap'].some(k=>Array.isArray(source[k]));
+    if(!looksLikeTfm)continue;
+
+    const data=normalizeRecoveryDb(source);
+    candidates.push({
+      key,
+      data,
+      count:recoveryCount(data),
+      breakdown:recoveryBreakdown(data)
+    });
+  }
+
+  const current=normalizeRecoveryDb(JSON.parse(JSON.stringify(db)));
+  candidates.push({
+    key:'現在読み込み中のデータ',
+    data:current,
+    count:recoveryCount(current),
+    breakdown:recoveryBreakdown(current),
+    current:true
+  });
+
+  const unique=[];
+  const seen=new Set();
+  for(const c of candidates.sort((a,b)=>b.count-a.count)){
+    const fp=JSON.stringify([
+      c.data.office,c.data.usa,c.data.hadano,c.data.flap,c.data.payments
+    ]);
+    if(seen.has(fp))continue;
+    seen.add(fp);
+    unique.push(c);
+  }
+  return unique;
+}
+function exportRecoveryCandidate(index){
+  const candidate=window._recoveryCandidates[index];
+  if(!candidate)return;
+  const stamp=new Date().toISOString().slice(0,10);
+  const blob=new Blob([JSON.stringify({
+    app:'TFM',
+    type:'recovery-export',
+    exportedAt:new Date().toISOString(),
+    sourceKey:candidate.key,
+    data:candidate.data
+  },null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`TFM_recovery_${candidate.count}件_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function restoreRecoveryCandidate(index){
+  const candidate=window._recoveryCandidates[index];
+  if(!candidate)return;
+
+  const currentRaw=localStorage.getItem(RECOVERY_DB_KEY);
+  if(currentRaw){
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+    localStorage.setItem(`tfm_db_before_recovery_${stamp}`,currentRaw);
+  }
+
+  if(!confirm(`${candidate.count}件の候補を復旧しますか？\n現在のデータは復旧前バックアップとして端末内に残します。`))return;
+
+  db=normalizeRecoveryDb(JSON.parse(JSON.stringify(candidate.data)));
+  localStorage.setItem(RECOVERY_DB_KEY,JSON.stringify(db));
+  render();
+  drawCalendar();
+  alert('データを復旧しました。設定画面の「書き出す」からJSONバックアップも保存してください。');
+  renderRecoveryCandidates();
+}
+function renderRecoveryCandidates(){
+  const candidates=findRecoveryCandidates();
+  window._recoveryCandidates=candidates;
+
+  recoveryResult.innerHTML=candidates.map((c,i)=>{
+    const b=c.breakdown;
+    return `<div class="recovery-item">
+      <div class="recovery-key">${esc(c.key)}</div>
+      <div class="recovery-count">${c.count}件 ${c.current?'<span class="recovery-safe">（現在）</span>':''}</div>
+      <div class="recovery-breakdown">
+        事務所 ${b.office}件 ／ USA ${b.usa}件 ／ 秦野 ${b.hadano}件 ／ 平井 ${b.flap}件 ／ 入金 ${b.payments}件
+      </div>
+      <div class="recovery-actions">
+        <button class="recovery-export" type="button" onclick="exportRecoveryCandidate(${i})">先に保存</button>
+        <button class="recovery-restore" type="button" onclick="restoreRecoveryCandidate(${i})" ${c.current?'disabled':''}>復旧する</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+scanRecovery.onclick=renderRecoveryCandidates;
+
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.4.2',
+    version:'1.2.1',
     exportedAt:new Date().toISOString(),
     data:db
   };
@@ -1354,9 +1115,6 @@ importBackup.onchange=async e=>{
   }
 };
 
-function sortNewest(items,key){
-  return [...items].sort((a,b)=>String(b[key]||'').localeCompare(String(a[key]||'')));
-}
 function render(){
  const now=new Date(),m=now.toISOString().slice(0,7),y=String(now.getFullYear());
  const officeMonth=db.office.filter(x=>ym(x.date)===m),ov=officeMonth.reduce((s,x)=>s+(+x.pay||0),0),orv=officeMonth.reduce((s,x)=>s+(+x.reimbursement||0),0),uv=db.usa.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.gross,0),hv=db.hadano.filter(x=>x.month===m).reduce((s,x)=>s+x.reg+x.extra,0),fv=db.flap.filter(x=>ym(x.date)===m).reduce((s,x)=>s+x.profit,0);
@@ -1365,11 +1123,11 @@ function render(){
  workedTotal.textContent=yen(expected);homeOffice.textContent=yen(ov);homeUsa.textContent=yen(uv);homeHadano.textContent=yen(hv);homeFlap.textContent=yen(fv);
  let tw=Math.min(db.settings.threewayCap,ov);threewayAmount.textContent=yen(tw);officeNextAmount.textContent=yen(Math.max(0,ov-db.settings.threewayCap));officeReimbursementAmount.textContent=yen(orv);threewayBar.style.width=`${Math.min(100,ov/db.settings.threewayCap*100)}%`;
  let yt=db.office.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.pay,0)+db.usa.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.gross,0)+db.hadano.filter(x=>x.month.startsWith(y)).reduce((s,x)=>s+x.reg+x.extra,0)+db.flap.filter(x=>x.date.startsWith(y)).reduce((s,x)=>s+x.profit,0);yearTotal.textContent=yen(yt);
- list(officeList,sortNewest(db.office,'date'),x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${(+x.base||0).toFixed(2)}h＋残業${(+x.ot||0).toFixed(2)}h</div>${(+x.reimbursement||0)>0?`<div class="muted tax-free">立替精算 ${yen(x.reimbursement)} ${esc(x.reimbursementMemo||'')}</div>`:''}${x.memo?`<div class="muted">${esc(x.memo)}</div>`:''}</div><div style="text-align:right"><div class="amount">${yen((+x.pay||0)+(+x.reimbursement||0))}</div><div class="muted">給与 ${yen(x.pay)}</div><div class="item-actions"><button class="edit-button" onclick="editOffice('${x.id}')">編集</button><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div></div>`);
- list(usaList,sortNewest(db.usa,'date'),x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')}</div><div class="muted">${x.payMode==='daily'?`日当 ${yen(x.unitRate)} × ${(+x.factor||0).toFixed(2)}`:x.payMode==='direct'?'明細確定額':x.start&&x.end?`${esc(x.start)}–${esc(x.end)}`:''}</div>${(+x.allowance||0)>0?`<div class="muted">課税手当 ${yen(x.allowance)}</div>`:''}${(+x.fare||0)+(+x.reimbursement||0)>0?`<div class="muted tax-free">非課税 ${yen((+x.fare||0)+(+x.reimbursement||0))}</div>`:''}</div><div><div class="amount">${yen(x.net||x.gross)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
- list(hadanoList,sortNewest(db.hadano,'month'),x=>`<div class="list-item"><div class="row"><div>${esc(x.month)}<div class="muted">通常${yen(x.reg)} 追加${yen(x.extra)}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('hadano','${x.id}')">削除</button></div></div></div>`);
- list(flapList,sortNewest(db.flap,'date'),x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.detail||'')}</div></div><div><div class="amount">${yen(x.profit)}</div><button class="danger" onclick="del('flap','${x.id}')">削除</button></div></div></div>`);
- list(paymentList,sortNewest(db.payments,'date'),x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.source)}<div class="muted"><span class="account-pill">${esc(x.account)}</span> ${esc(x.memo||'')}</div></div><div><div class="amount">${yen(x.amount)}</div><button class="danger" onclick="del('payments','${x.id}')">削除</button></div></div></div>`);
+ list(officeList,db.office,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)}<div class="muted">${(+x.base||0).toFixed(2)}h＋残業${(+x.ot||0).toFixed(2)}h</div>${(+x.reimbursement||0)>0?`<div class="muted tax-free">立替精算 ${yen(x.reimbursement)} ${esc(x.reimbursementMemo||'')}</div>`:''}${x.memo?`<div class="muted">${esc(x.memo)}</div>`:''}</div><div style="text-align:right"><div class="amount">${yen((+x.pay||0)+(+x.reimbursement||0))}</div><div class="muted">給与 ${yen(x.pay)}</div><div class="item-actions"><button class="edit-button" onclick="editOffice('${x.id}')">編集</button><button class="danger" onclick="del('office','${x.id}')">削除</button></div></div></div></div>`);
+ list(usaList,db.usa,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.venue||'')} ${x.from&&x.to?'／ '+esc(x.from)+'→'+esc(x.to):''}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('usa','${x.id}')">削除</button></div></div></div>`);
+ list(hadanoList,db.hadano,x=>`<div class="list-item"><div class="row"><div>${esc(x.month)}<div class="muted">通常${yen(x.reg)} 追加${yen(x.extra)}</div></div><div><div class="amount">${yen(x.net)}</div><button class="danger" onclick="del('hadano','${x.id}')">削除</button></div></div></div>`);
+ list(flapList,db.flap,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.type)}<div class="muted">${esc(x.detail||'')}</div></div><div><div class="amount">${yen(x.profit)}</div><button class="danger" onclick="del('flap','${x.id}')">削除</button></div></div></div>`);
+ list(paymentList,db.payments,x=>`<div class="list-item"><div class="row"><div>${esc(x.date)} ${esc(x.source)}<div class="muted"><span class="account-pill">${esc(x.account)}</span> ${esc(x.memo||'')}</div></div><div><div class="amount">${yen(x.amount)}</div><button class="danger" onclick="del('payments','${x.id}')">削除</button></div></div></div>`);
  drawCalendar();renderRoutes();chat.innerHTML=db.chat.map(x=>`<div class="bubble user">${esc(x)}</div><div class="bubble fin">登録済みです。</div>`).join('');
 }
 
@@ -1481,7 +1239,7 @@ function toggleYearTotal(){
 yearCard.onclick=toggleYearTotal;
 yearCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleYearTotal()}};
 
-setUsaMode('hourly');officePreview();usaPreview();flapPreview();render();
+rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();render();
 
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
