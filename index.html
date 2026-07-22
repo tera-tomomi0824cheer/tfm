@@ -261,6 +261,38 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
   .recovery-actions button{width:100%}
 }
 
+
+/* v1.2.3 事務所タイムカード一括登録 */
+.timecard-box{width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}
+.timecard-box summary{
+  list-style:none;cursor:pointer;padding:15px 16px;font-weight:800;
+  display:flex;justify-content:space-between;align-items:center;gap:12px
+}
+.timecard-box summary::-webkit-details-marker{display:none}
+.timecard-box summary::after{content:"▼";font-size:12px;color:#5EEAD4}
+.timecard-box[open] summary::after{content:"▲"}
+.timecard-content{padding:0 14px 14px;min-width:0;max-width:100%;box-sizing:border-box}
+.timecard-help{font-size:12px;color:#CBD5E1;line-height:1.65;background:#101827;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:12px}
+.timecard-upload{display:block;width:100%;box-sizing:border-box;border:1px dashed #64748B;border-radius:12px;padding:14px;text-align:center;font-weight:800;cursor:pointer}
+.timecard-upload input{position:absolute;opacity:0;pointer-events:none}
+.timecard-file-list{font-size:11px;color:#94A3B8;line-height:1.6;margin:8px 0}
+.timecard-toolbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:10px 0}
+.timecard-status{font-size:12px;color:#CBD5E1;line-height:1.6;margin:8px 0}
+.timecard-raw{width:100%;min-height:150px;box-sizing:border-box;font-size:12px;line-height:1.5}
+.timecard-candidates{display:grid;gap:10px;margin-top:12px}
+.timecard-row{border:1px solid var(--line);background:#101827;border-radius:14px;padding:12px;min-width:0}
+.timecard-row-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.timecard-row-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.timecard-row-grid .field{min-width:0}
+.timecard-row input{width:100%;box-sizing:border-box}
+.timecard-row-note{font-size:11px;color:#94A3B8;margin-top:7px}
+.timecard-batch-bar{position:sticky;bottom:78px;z-index:20;background:#0F172A;border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:12px}
+.timecard-batch-bar button{width:100%}
+@media(max-width:520px){
+  .timecard-toolbar,.timecard-row-grid{grid-template-columns:1fr}
+  .timecard-batch-bar{bottom:88px}
+}
+
 </style>
 </head>
 <body>
@@ -366,7 +398,57 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
   </div>
 
   <div id="officePane" class="formpane active">
-    <div class="card"><div class="section-title">事務所勤務</div><button id="duplicateOffice" class="duplicate-button" type="button">前回の事務所勤務を複製</button><div class="duplicate-note">日付だけ今日に変更して入力します</div>
+    <details class="card timecard-box">
+  <summary>📷 タイムカードを一括登録</summary>
+  <div class="timecard-content">
+    <div class="timecard-help">
+      前半・後半など複数の写真をまとめて選べます。読み取るのは基本的に
+      <strong>勤務日・IN・OUT</strong>だけです。休憩は初期値1時間、残業はTFMが自動計算します。<br>
+      OCR結果は自動登録せず、必ず候補一覧を確認してから登録します。
+    </div>
+
+    <div class="field">
+      <label>対象年月</label>
+      <input id="timecardMonth" type="month">
+    </div>
+
+    <label class="timecard-upload">
+      📷 前半・後半の写真を選択
+      <input id="timecardImages" type="file" accept="image/*" multiple>
+    </label>
+    <div id="timecardFileList" class="timecard-file-list">まだ写真は選択されていません。</div>
+
+    <div class="timecard-toolbar">
+      <button id="runTimecardOcr" class="secondary" type="button" disabled>写真を読み取る</button>
+      <button id="clearTimecard" class="secondary" type="button">クリア</button>
+    </div>
+    <div id="timecardStatus" class="timecard-status">
+      OCRはこの機能を開いて実行したときだけ読み込みます。通信できない場合も、下の文字欄へ手入力して候補を作れます。
+    </div>
+
+    <div class="field">
+      <label>読み取った文字・手入力用</label>
+      <textarea id="timecardRaw" class="timecard-raw" placeholder="例：
+1 8:51 18:00
+2 8:57 18:11
+3 9:00 15:00
+または
+7/1 8:58-15:35"></textarea>
+    </div>
+
+    <div class="timecard-toolbar">
+      <button id="parseTimecard" class="primary" type="button">登録候補を作成</button>
+      <button id="addBlankTimecardRow" class="secondary" type="button">空の行を追加</button>
+    </div>
+
+    <div id="timecardCandidates" class="timecard-candidates"></div>
+
+    <div id="timecardBatchBar" class="timecard-batch-bar hidden">
+      <button id="registerTimecardRows" class="primary" type="button">選択した勤務を一括登録</button>
+    </div>
+  </div>
+</details>
+<div class="card"><div class="section-title">事務所勤務</div><button id="duplicateOffice" class="duplicate-button" type="button">前回の事務所勤務を複製</button><div class="duplicate-note">日付だけ今日に変更して入力します</div>
       <form id="officeForm">
         <div class="field"><label>勤務日</label><input name="date" type="date" required></div>
         <div class="grid compact-two"><div class="field"><label>開始</label><input name="start" type="time" value="09:00"></div><div class="field"><label>終了</label><input name="end" type="time" value="18:00"></div></div>
@@ -495,7 +577,7 @@ nav{left:0;right:0;width:100%;max-width:100%;z-index:1000;box-sizing:border-box}
 <div class="grid compact-two"><div class="field"><label>事務所時給</label><input id="officeHourly" type="number"></div><div class="field"><label>残業倍率（8時間超）</label><input id="otRate" type="number" step=".05"></div></div>
 <div class="field"><label>スリーウェイ上限</label><input id="threewayCap" type="number"></div>
 <div class="grid compact-two"><div class="field"><label>USA講習会時給</label><input id="usaSeminar" type="number"></div><div class="field"><label>USAコーチ時給</label><input id="usaCoach" type="number"></div></div>
-<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.2 / 復旧画面レイアウト修正</div></div>
+<button id="saveSettings" class="primary">保存</button><div class="note" style="margin-top:12px">バージョン v1.2.3 / タイムカード一括登録</div></div>
 
 <div class="card recovery-card">
   <div class="section-title">データ復旧</div>
@@ -1081,7 +1163,7 @@ scanRecovery.onclick=renderRecoveryCandidates;
 function buildBackup(){
   return {
     app:'TFM',
-    version:'1.2.2',
+    version:'1.2.3',
     exportedAt:new Date().toISOString(),
     data:db
   };
@@ -1260,4 +1342,5 @@ rankField.classList.add('hidden');officePreview();usaPreview();flapPreview();ren
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js');
 </script>
+<script src="./office-timecard.js?v=1.2.3"></script>
 </body></html>
